@@ -1,68 +1,26 @@
-%% data and ids from psy tests
+%% load data
 
-[psyid_r_time, Data_r_time] = getpsytoolkitdata('/media/Storage/AgestudyNL/', 'R_TIME');
-[psyid_2_back, Data_2_back] = getpsytoolkitdata('/media/Storage/AgestudyNL/', '2_Back');
-[psyid_task_switch, Data_task_switch] = getpsytoolkitdata('/media/Storage/AgestudyNL/', 'TaskSwitch');
-[psyid_corsi, Data_corsi] = getpsytoolkitdata('/media/Storage/AgestudyNL/', 'CORSI');
+taps_tests = fuseTapPsy();
 
+%% get JIDS corresponsing to test times
 
-%% connect ids
+all_data_proc = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
 
-demoinfo = readtable('/media/Storage/AgestudyNL/Psytoolkit/DemoInfo/session_info.csv', 'Delimiter', ',');
-all_part_id = demoinfo.participation_id;
+%% get only first session
 
-% ll = cellfun(@(c)strcmp(c, all_part_id), devPartIds, 'UniformOutput', false);
-all_Data_ids = cell(length(all_part_id), 7);
+first_attempt = all_data_proc(all_data_proc.session == 1, :);
 
-
-for i = 1:length(all_part_id)
-    part_id = all_part_id{i};
-    psyid_ = qaid2psyid(part_id);
-    
-    
-    id_r_time = psyid_r_time(contains(psyid_r_time, psyid_));
-    id_2_back = psyid_2_back(contains(psyid_2_back, psyid_));
-    id_task_switch = psyid_task_switch(contains(psyid_task_switch, psyid_));
-    id_corsi = psyid_r_time(contains(psyid_corsi, psyid_));
-    
-    all_Data_ids{i, 1} = part_id;
-    all_Data_ids{i, 2} = psyid_;
-    if ~isempty(id_r_time)
-        all_Data_ids{i, 3} = Data_r_time{contains(psyid_r_time, psyid_)};
+all_r_time = cell(2, 4);
+% make sure the JID exists
+for idx_val = 1:2
+    for jid_type = 1:4
+        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+        with_jid = first_attempt(~cellfun('isempty', first_attempt.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
+        all_r_time{idx_val, jid_type} = res;
     end
-    if ~isempty(id_2_back)
-        all_Data_ids{i, 4} = Data_2_back{contains(psyid_2_back, psyid_)};
-    end
-    if ~isempty(id_task_switch)
-        all_Data_ids{i, 5} = Data_task_switch{contains(psyid_task_switch, psyid_)};
-    end
-    if ~isempty(id_corsi)
-        all_Data_ids{i, 6} = Data_corsi{contains(psyid_corsi, psyid_)};
-    end
-    
-    kk_ = all_Data_ids(i, 1:6);
-    all_Data_ids{i, 7} = length(kk_(~cellfun('isempty', kk_))) - 2;
 end
-
-%% filter out
-rtime = all_Data_ids(:, 3);
-rtime = rtime(~cellfun('isempty', rtime));
-
-back2 = all_Data_ids(:, 4);
-back2 = back2(~cellfun('isempty', back2));
-
-taskswitch = all_Data_ids(:, 5);
-taskswitch = taskswitch(~cellfun('isempty', taskswitch));
-
-corsi = all_Data_ids(:, 6);
-corsi = corsi(~cellfun('isempty', corsi));
-
-%% taps
-
-for i = 1:length(all_part_id)
-    fprintf("Doing %d/%d (%s)\n", i, length(all_part_id), all_part_id{i});
-    SUB = getTapDataParsed(all_part_id{i}, 'Phone', 'refresh', 1);
-end
+%% cross all single JIDS with all tests 
 
 %% some exp rtime
 
@@ -138,24 +96,80 @@ end
 first_attempt = all_data_proc(all_data_proc.session == 1, :);
 
 bin_index = logical(zeros(height(first_attempt)));
+bin_atleastone = logical(zeros(height(first_attempt)));
 
 for i = 1:height(first_attempt) % only chech normal JID for now
     sub = first_attempt.jids{i};
     jid_ = sub(:, 1);
-    bin_index(i) = length(jid_(~cellfun('isempty', jid_))) == 15;   
+    bin_index(i) = length(jid_(~cellfun('isempty', jid_))) == 15;  
+    bin_atleastone(i) = length(jid_(~cellfun('isempty', jid_))) > 0; 
 end
 
 with_all_days = first_attempt(bin_index, :);
+with_ateastone = first_attempt(bin_atleastone, :);
 
-A = zeros(height(with_all_days), 15, 50, 50);
+%% LIMO MEAN
+% single JIDS each person -> all variations of JID (4) for all tests (5);
+
+% redo JIDS with full 30 days window 
+%% LIMO DAYS
+n_subs = height(with_all_days);
+n_ch = 2500;
+n_time = 15;
+
+A = zeros(n_subs, n_time, 50, 50);
 B = ones(height(with_all_days), 2);
-B(:, 1) = with_all_days.vals(:, 1);
+B(:, 1) = with_all_days.vals(:, 2);
 for i = 1:height(with_all_days)
-    for j = 1:15
+    for j = 1:n_time
         A(i, j, :, :) = with_all_days.jids{i}{j, 1};
     end
 end
-size(A)
+
+A = reshape(A, n_subs, n_time, n_ch);
+
+%% LIMO
+n_boot = 100;
+boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
+boot_table = limo_create_boot_table(boot_data, n_boot);
+
+M = zeros(n_ch, n_time, 1);  % channels, times, rtime  F scores
+P = zeros(n_ch, n_time, 1);  %  P scores
+R2 = zeros(n_ch, n_time, 1);
+
+bootM = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
+bootP = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
+
+for ch = 1:n_ch  % all channels separately
+    Y = A(:, :, ch); % zeros(163, 15);
+    X = B; % ones(163, 2);
+    model = limo_glm(Y, X, 0, 0, 1, 'OLS', 'Time', 0, n_time);
+    
+    model_boot = limo_glm_boot(Y,X, model.W,0,0,1,'OLS','Time',boot_table{1, ch});
+    
+    M(ch, :, :) = model.F;
+    P(ch, :, :) = model.p;
+    R2(ch, :, :) = model.R2_univariate;
+    
+    for j = 1:n_boot
+        bootM(ch, :, j) = model_boot.F{j};
+        bootP(ch, :, j) = model_boot.p{j};
+    end
+    
+end
+
+% cluster
+
+nM = find_adj_matrix(50, 1);
+MCC = 2;
+p = 0.05;
+
+% got rid of a stupid error check: whatever! line 53 of limo_cluster_correction
+% [mask, p_vals] = limo_cluster_correction(M, P, bootM, bootP, nM, MCC, p);
+[mask2, p_vals2] = limo_cluster_correction(M(:, 1), P(:, 1), bootM(:, 1, :), bootP(:, 1, :), nM, MCC, p);
+
+
+%% PLOT
 
 %% LASSO
 S = std(X, 1);
@@ -198,4 +212,10 @@ p = 0.05;
 
 % got rid of a stupid error check: whatever! line 53 of limo_cluster_correction
 [mask, p_vals] = limo_cluster_correction(M, P, bootM, bootP, nM, MCC, p);
+
+% only for thresholding and only 1 time point
+[mask2, p_vals2] = limo_cluster_correction(M(:, 1), P(:, 1), bootM(:, 1, :), bootP(:, 1, :), nM, MCC, p);
+th = limo_ecluster_make(bootM(:, 1, :),bootP(:, 1, :), 0.05);
+
+
 

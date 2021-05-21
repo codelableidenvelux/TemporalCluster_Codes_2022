@@ -10,7 +10,7 @@ half_way = window + 1;
 
 windows = ((0:24:24 * totalDays) - 24 * half_way + 12) * 3600 * 1000;
 
-for id_ = 1:length(indata)
+for id_ = 1:height(filtered_data)
     data_ = filtered_data(id_, :);
     fprintf("Doing %d/%d (%s)\n", id_, height(filtered_data), data_.partId{1});
     test_data = data_{1, testName}{1};
@@ -57,8 +57,35 @@ for id_ = 1:length(indata)
                 values = [median(sRT), median(cRT(:, 1))];
                 
             case "2back"
+                [Dprime, ~, ~, ~, ~, ~, ~, RThits, ~] = getpsytoolkit2Back(test_data.session{1, i}.vals);
+                
+                if ~isfield(Dprime, 'dpri') || (length(RThits)) < 2
+                    continue
+                end
+                values = [Dprime.dpri, median(RThits)];
             case "taskswitch"
+                [Same, Mixed] = getpsytoolkitswitch(test_data.session{1, i}.vals);
+                
+                SameRT = [median(Same.color.RT_correct(:,1))+median(Same.shape.RT_correct(:,1))]/2;
+                MixedRT = median([Mixed.RT_correct_switch(:,1); Mixed.RT_correct_noswitch(:,1)]);
+
+                GlobalCostRT_norm = [(MixedRT-SameRT)/SameRT];
+                GlobalCostRT = [(MixedRT-SameRT)];
+
+                SwitchRT = median(Mixed.RT_correct_switch(:,1));
+                NonSwitchRT = median(Mixed.RT_correct_noswitch(:,1)); 
+
+                LocalCostRT_norm = (SwitchRT-NonSwitchRT)/NonSwitchRT; 
+                LocalCostRT = (SwitchRT-NonSwitchRT); 
+                
+                values = [GlobalCostRT_norm, GlobalCostRT, LocalCostRT_norm, LocalCostRT];
+                
             case "corsi"
+                Cspan = getpsytoolkitcorsi(test_data.session{1, i}.vals);
+                if isempty(Cspan)
+                    continue
+                end
+                values = Cspan;
 
         end
         
@@ -75,3 +102,5 @@ for id_ = 1:length(indata)
     end
     
 end
+
+outdata = all_data_proc;

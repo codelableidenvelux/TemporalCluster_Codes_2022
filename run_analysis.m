@@ -2,24 +2,82 @@
 
 taps_tests = fuseTapPsy();
 
-%% get JIDS corresponsing to test times
 
-all_data_proc = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+%% CORSI
+% all_data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+% first_attempt_corsi = all_data_proc_corsi(all_data_proc_corsi.session == 1, :);
 
-%% get only first session
+all_corsi = cell(1, 4);
+% make sure the JID exists
+for idx_val = 1:1
+    for jid_type = 1:4
+        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+        with_jid = first_attempt_corsi(~cellfun('isempty', first_attempt_corsi.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
+        all_corsi{idx_val, jid_type} = res;
+    end
+end
+save('all_corsi_log', 'all_corsi')
 
-first_attempt = all_data_proc(all_data_proc.session == 1, :);
+% 2back
+
+all_data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+first_attempt_2back = all_data_proc_2back(all_data_proc_2back.session == 1, :);
+
+all_2back = cell(2, 4);
+% make sure the JID exists
+for idx_val = 1:2
+    for jid_type = 1:4
+        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+        with_jid = first_attempt_2back(~cellfun('isempty', first_attempt_2back.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
+        all_2back{idx_val, jid_type} = res;
+    end
+end
+save('all_2back_log', 'all_2back')
+
+% rtime
+
+all_data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+first_attempt_rtime = all_data_proc_rtime(all_data_proc_rtime.session == 1, :);
 
 all_r_time = cell(2, 4);
 % make sure the JID exists
 for idx_val = 1:2
     for jid_type = 1:4
         fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
-        with_jid = first_attempt(~cellfun('isempty', first_attempt.jids(:, jid_type)), :);
-        [res.mask, res.p_vals, res.M, res.P, res.R2] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
+        with_jid = first_attempt_rtime(~cellfun('isempty', first_attempt_rtime.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
         all_r_time{idx_val, jid_type} = res;
     end
 end
+
+save('all_rtime_log', 'all_r_time')
+        
+
+% TASK SWITCH 
+
+all_data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
+first_attempt_switch = all_data_proc_switch(all_data_proc_switch.session == 1, :);
+
+all_switch = cell(2, 4);
+% make sure the JID exists
+for idx_val = 1:4
+    for jid_type = 1:4
+        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+        with_jid = first_attempt_switch(~cellfun('isempty', first_attempt_switch.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
+        all_switch{idx_val, jid_type} = res;
+    end
+end
+
+save('all_switch_log', 'all_switch')
+
+%% RTIME - multiDay
+
+all_data_proc_rtime = extractDaySequenceJIDFromTestTime(taps_tests, "rtime", 7);
+
+
 %% cross all single JIDS with all tests 
 
 %% some exp rtime

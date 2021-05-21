@@ -54,8 +54,37 @@ for id_ = 1:height(filtered_data)
                 values = [median(sRT), median(cRT(:, 1))];
                 
             case "2back"
+                [Dprime, ~, ~, ~, ~, ~, ~, RThits, ~] = getpsytoolkit2Back(test_data.session{1, i}.vals);
+                
+                if ~isfield(Dprime, 'dpri') || (length(RThits)) < 2
+                    continue
+                end
+                
+                values = [Dprime.dpri, median(RThits)];
             case "taskswitch"
+                [Same, Mixed] = getpsytoolkitswitch(test_data.session{1, i}.vals);
+                
+                SameRT = [median(Same.color.RT_correct(:,1))+median(Same.shape.RT_correct(:,1))]/2;
+                MixedRT = median([Mixed.RT_correct_switch(:,1); Mixed.RT_correct_noswitch(:,1)]);
+
+                GlobalCostRT_norm = [(MixedRT-SameRT)/SameRT];
+                GlobalCostRT = [(MixedRT-SameRT)];
+
+                SwitchRT = median(Mixed.RT_correct_switch(:,1));
+                NonSwitchRT = median(Mixed.RT_correct_noswitch(:,1)); 
+
+                LocalCostRT_norm = (SwitchRT-NonSwitchRT)/NonSwitchRT; 
+                LocalCostRT = (SwitchRT-NonSwitchRT); 
+                
+                values = [GlobalCostRT_norm, GlobalCostRT, LocalCostRT_norm, LocalCostRT];
+                
+                
             case "corsi"
+                Cspan = getpsytoolkitcorsi(test_data.session{1, i}.vals);
+                if isempty(Cspan)
+                    continue
+                end
+                values = Cspan;
 
         end
         

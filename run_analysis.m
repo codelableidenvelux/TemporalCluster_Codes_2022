@@ -2,6 +2,21 @@
 
 taps_tests = fuseTapPsy();
 
+%% AGE
+all_single_jids_age = extractSingleJID(taps_tests);
+
+%% age 
+all_age = cell(1, 4);
+% make sure the JID exists
+for idx_val = 1:1
+    for jid_type = 1:4
+        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+        with_jid = all_single_jids_age(~cellfun('isempty', all_single_jids_age.jids(:, jid_type)), :);
+        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.age(:, idx_val), with_jid.jids(:, jid_type));
+        all_age{idx_val, jid_type} = res;
+    end
+end
+save('all_age_log_no_norm', 'all_age')
 
 %% CORSI
 % all_data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
@@ -36,7 +51,7 @@ for idx_val = 1:2
 end
 save('all_2back_log', 'all_2back')
 
-% rtime
+%% rtime
 
 all_data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
 first_attempt_rtime = all_data_proc_rtime(all_data_proc_rtime.session == 1, :);
@@ -52,10 +67,10 @@ for idx_val = 1:2
     end
 end
 
-save('all_rtime_log', 'all_r_time')
+save('all_rtime_log_no_norm', 'all_r_time')
         
 
-% TASK SWITCH 
+%% TASK SWITCH 
 
 all_data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
 first_attempt_switch = all_data_proc_switch(all_data_proc_switch.session == 1, :);

@@ -28,6 +28,9 @@ for id_ = 1:height(filtered_data)
     fprintf("\tExtracting %d sessions\n", length(test_data.session));
     % get each session separately
     for i = 1:length(test_data.session)
+        if i ~= 1
+            continue
+        end
         fprintf("\t\tSession %d/%d\n", i, length(test_data.session));
         start_time = posixtime(test_data.session{1, i}.TIME_start) * 1000;
         all_jids = cell(1, 4);
@@ -35,10 +38,10 @@ for id_ = 1:height(filtered_data)
 
         win_taps = SUB.taps((SUB.taps.start >= start_time + begin) & (SUB.taps.stop <= start_time + ending), :);
         if sum(win_taps.tapsSession) >= 100
-            all_jids{1, 1} = FullJID(win_taps.taps);
-            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps);
-            all_jids{1, 3} = SocialJID(win_taps, SUB.apps);
-            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps);
+            all_jids{1, 1} = FullJID(win_taps.taps, 'Norm', false);
+            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', false);
+            all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', false);
+            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', false);
             n_taps = sum(win_taps.tapsSession);
         end
 

@@ -7,8 +7,10 @@ function data = fuseTapPsy()
 
 demoinfo = readtable('/media/Storage/AgestudyNL/Psytoolkit/DemoInfo/session_info.csv', 'Delimiter', ',');
 all_part_id = demoinfo.participation_id;
+all_birth = demoinfo.birthyear;
+all_gender = demoinfo.gender;
 
-all_Data_ids = cell(length(all_part_id), 8);
+all_Data_ids = cell(length(all_part_id), 10);
 
 % in case refresh is needed
 % for i = 1:length(all_part_id)
@@ -19,6 +21,9 @@ all_Data_ids = cell(length(all_part_id), 8);
 
 for i = 1:length(all_part_id)
     part_id = all_part_id{i};
+    birthdate = datetime(all_birth{i}(1:end-3), 'InputFormat', 'eee, dd MMM yyyy HH:mm:ss');
+    gender = all_gender(i);
+    
     psyid_ = qaid2psyid(part_id);
     
     id_r_time = psyid_r_time(contains(psyid_r_time, psyid_));
@@ -46,6 +51,8 @@ for i = 1:length(all_part_id)
     
     SUB = getTapDataParsed(part_id, 'Phone', 'refresh', 0);
     all_Data_ids{i, 8} = SUB;
+    all_Data_ids{i, 9} = birthdate;
+    all_Data_ids{i, 10} = gender;
 end
 
-data = cell2table(all_Data_ids, 'VariableNames', {'partId', 'psyId', 'rtime', '2back', 'taskswitch', 'corsi', 'n_tests', 'Phone'});
+data = cell2table(all_Data_ids, 'VariableNames', {'partId', 'psyId', 'rtime', '2back', 'taskswitch', 'corsi', 'n_tests', 'Phone', 'birthdate', 'gender'});

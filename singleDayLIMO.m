@@ -1,4 +1,4 @@
-function [mask, p_vals, M, P, R2, A, B, Betas] = singleDayLIMO(test_values, jids)
+function [mask, p_vals, M, P, R2, A, B, Betas] = singleDayLIMO(test_values, jids, varargin)
 
 %% LIMO DAYS
 side = size(jids{1}, 1);

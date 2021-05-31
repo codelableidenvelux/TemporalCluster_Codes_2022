@@ -25,7 +25,7 @@ single_jids_otherstudies = extractSingleJID(T2);
 
 %% age study 
 
-taps_tests = fuseTapPsy();
+% taps_tests = fuseTapPsy();
 single_jids_agestudy = extractSingleJID(taps_tests);
 
 %% unite
@@ -33,13 +33,13 @@ single_jids_agestudy = extractSingleJID(taps_tests);
 all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
 
 %% age 
-all_age = cell(1, 4);
+% all_age = cell(1, 4);
 
-for jid_type = 1:4
+for jid_type = 4:4
     fprintf("Doing AGE with JID %d\n", jid_type);
     with_jid = all_single_jids_age(~cellfun('isempty', all_single_jids_age.jids(:, jid_type)), :);
     [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.age(:, 1), with_jid.jids(:, jid_type));
     all_age{1, jid_type} = res;
 end
 
-save('all_age_log_no_norm', 'all_age')
+save('all_age_log_NORM_v2', 'all_age')

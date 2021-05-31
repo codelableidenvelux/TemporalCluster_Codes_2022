@@ -19,7 +19,8 @@ residual = Y - Y_hat;
 %% 
 all_R_res = cell(2500, 2500);
 
-for i = 1:2500
+parfor i = 1:2500
+    disp(i)
     for j = i:2500
         c = fitlm(residual(:, i), residual(:, j));
 %         all_R_res{j, i}.R2 = c.Rsquared.Ordinary;

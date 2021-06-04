@@ -25,7 +25,7 @@ single_jids_otherstudies = extractSingleJID(T2);
 
 %% age study 
 
-% taps_tests = fuseTapPsy();
+taps_tests = fuseTapPsy();
 single_jids_agestudy = extractSingleJID(taps_tests);
 
 %% unite

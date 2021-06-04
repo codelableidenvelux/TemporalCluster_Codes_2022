@@ -16,6 +16,7 @@ Betas = squeeze(all_age{1, 1}.Betas(:, :, :));
 Y_hat = X * Betas';
 residual = Y - Y_hat;
 
+
 %%
 % all_R_res2 = zeros(2500, 2500);
 color = zeros(2500);
@@ -29,16 +30,14 @@ for i = 1:2500
 end
 
 %% 
-all_R_res = cell(2500, 2500);
+all_R_res =cell(2500, 2500);
 
-parfor i = 1:2500
+for i = 1:2500
     disp(i)
     for j = i:2500
         c = fitlm(residual(:, i), residual(:, j));
 %         all_R_res{j, i}.R2 = c.Rsquared.Ordinary;
-        all_R_res{j, i}.p = c.Coefficients.pValue(2);
-        all_R_res{j, i}.invert = sign(Betas(j, 1)) ~= sign(Betas(i, 1));
-        
+        all_R_res{i, j} = c;
     end
 end
 

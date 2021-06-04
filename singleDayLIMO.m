@@ -1,14 +1,16 @@
-function [mask, p_vals, M, P, R2, A, B, Betas] = singleDayLIMO(test_values, jids, varargin)
+function [mask, p_vals, models] = singleDayLIMO(test_values, jids, varargin)
 
 %% LIMO DAYS
 side = size(jids{1}, 1);
 n_subs = length(jids);
 n_ch = side * side;
 n_time = 1;
+n_values = size(test_values, 2);
+
 
 A = zeros(n_subs, n_time, side, side);
-B = ones(n_subs, 2);
-B(:, 1) = test_values;
+B = ones(n_subs, n_values + 1);
+B(:, 1:n_values) = test_values;
 
 for i = 1:n_subs
     A(i, 1, :, :) = jids{i};
@@ -32,17 +34,21 @@ Betas = zeros(n_ch, n_time, 2);
 bootM = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
 bootP = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
 W = ones(n_subs, n_boot);
+models = cell(n_ch, 1);
+
 for ch = 1:n_ch  % all channels separately
     Y = A(:, :, ch); % zeros(163, 15);
     X = B; % ones(163, 2);
-    model = limo_glm(Y, X, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
+    model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);
     
-    model_boot = limo_glm_boot(Y,X, W,0,0,1,'IRLS','Time',boot_table{1, ch});
+    models{ch, 1} = model;
+    
+    model_boot = limo_glm_boot(Y,X, W,0,0,n_values,'IRLS','Time',boot_table{1, ch});
     
     M(ch, :, :) = model.F;
     P(ch, :, :) = model.p;
-    R2(ch, :, :) = model.R2_univariate;
-    Betas(ch, :, :) = model.betas;
+%     R2(ch, :, :) = model.R2_univariate;
+%     Betas(ch, :, :) = model.betas;
     
     for j = 1:n_boot
         bootM(ch, :, j) = model_boot.F{j};

@@ -46,8 +46,9 @@ end
 
 x = age(entropy > 5); %Population of states
 y = entropy(entropy > 5); %Accidents per state
-tbl = array2table([x(:), y(:), y(:)], 'VariableNames', {'Age', 'Entropy', 'Gender'});
-mdl = fitlm(tbl, 'Entropy ~ Age + Gender', 'RobustOpts', 'on');
+z = rand(size(x));
+% tbl = array2table([x(:), y(:), y(:)], 'VariableNames', {'Age', 'Entropy', 'Gender'});
+% mdl = fitlm(tbl, 'Entropy ~ Age + Gender', 'RobustOpts', 'on');
 % plotResiduals(mdl,'probability')
 % plotAdded(mdl);
 

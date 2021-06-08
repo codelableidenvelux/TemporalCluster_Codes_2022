@@ -3,41 +3,43 @@
 taps_tests = fuseTapPsy();
 
 %% AGE
-all_single_jids_age = extractSingleJID(taps_tests);
+% all_single_jids_age = extractSingleJID(taps_tests);
 
-%% age 
-all_age = cell(1, 4);
-% make sure the JID exists
-for idx_val = 1:1
-    for jid_type = 1:4
-        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
-        with_jid = all_single_jids_age(~cellfun('isempty', all_single_jids_age.jids(:, jid_type)), :);
-        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.age(:, idx_val), with_jid.jids(:, jid_type));
-        all_age{idx_val, jid_type} = res;
-    end
-end
-save('all_age_log_no_norm', 'all_age')
+% %% age 
+% all_age = cell(1, 4);
+% % make sure the JID exists
+% for idx_val = 1:1
+%     for jid_type = 1:4
+%         fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+%         with_jid = all_single_jids_age(~cellfun('isempty', all_single_jids_age.jids(:, jid_type)), :);
+%         [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.age(:, idx_val), with_jid.jids(:, jid_type));
+%         all_age{idx_val, jid_type} = res;
+%     end
+% end
+% save('all_age_log_no_norm', 'all_age')
 
 %% CORSI
-% all_data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
-% first_attempt_corsi = all_data_proc_corsi(all_data_proc_corsi.session == 1, :);
+data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
 all_corsi = cell(1, 4);
 % make sure the JID exists
-for idx_val = 1:1
-    for jid_type = 1:4
-        fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
-        with_jid = first_attempt_corsi(~cellfun('isempty', first_attempt_corsi.jids(:, jid_type)), :);
-        [res.mask, res.p_vals, res.M, res.P, res.R2, res.A, res.B, res.Betas] = singleDayLIMO(with_jid.vals(:, idx_val), with_jid.jids(:, jid_type));
-        all_corsi{idx_val, jid_type} = res;
-    end
+for jid_type = 1:4
+    fprintf("Doing val %d with JID %d\n", idx_val, jid_type);
+    with_jid = data_proc_corsi(~cellfun('isempty', data_proc_corsi.jids(:, jid_type)), :);
+    
+    regressor = table2array(with_jid(:, {'vals', 'gender'}));
+
+    [res.masks, res.p_vals, res.mdl, res.A, res.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type));
+    all_corsi{idx_val, jid_type} = res;
 end
+
 save('all_corsi_log', 'all_corsi')
 
-% 2back
+%% 2back
 
-all_data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
-first_attempt_2back = all_data_proc_2back(all_data_proc_2back.session == 1, :);
+data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
 all_2back = cell(2, 4);
 % make sure the JID exists

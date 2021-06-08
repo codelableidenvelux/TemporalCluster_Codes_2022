@@ -30,14 +30,19 @@ for i = 1:2500
 end
 
 %% 
-all_R_res =cell(2500, 2500);
+all_R_res = zeros(2500, 2500, 4);  % R, R2, t, p
+multiWaitbar( 'CloseAll' );
 
 for i = 1:2500
-    disp(i)
+    multiWaitbar( 'Outside',    i/2500, 'Color', [0.8 0.0 0.1]);
     for j = i:2500
+        multiWaitbar( 'Inside', j/2500, 'Color', [1.0 0.4 0.0]);
         c = fitlm(residual(:, i), residual(:, j));
-%         all_R_res{j, i}.R2 = c.Rsquared.Ordinary;
-        all_R_res{i, j} = c;
+        kk = corrcoef(residual(:, i), residual(:, j));
+        all_R_res(j, i, 1) = kk(1, 2);
+        all_R_res(j, i, 2) = c.Rsquared.Ordinary;
+        all_R_res(j, i, 3) = c.Coefficients.tStat(2);
+        all_R_res(j, i, 4) = c.Coefficients.pValue(2);
     end
 end
 

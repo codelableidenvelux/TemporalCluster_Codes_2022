@@ -5,13 +5,11 @@ for i = 1:2500
         if ~isempty(all_R_res{i, j})
             presence(i, j) = all_R_res{i, j}.p < 0.05;
             presence(j, i) = all_R_res{i, j}.p < 0.05;
-
             color(i, j) = all_R_res{i, j}.invert;
             color(j, i) = all_R_res{i, j}.invert;
         end
     end
 end
-
 
 
 %%

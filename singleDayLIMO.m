@@ -27,9 +27,15 @@ boot_table = limo_create_boot_table(boot_data, n_boot);
 
 M = zeros(n_ch, n_time, 1, n_values);  % channels, times, rtime  F scores
 P = zeros(n_ch, n_time, 1, n_values);  %  P scores
+M_full = zeros(n_ch, n_time, 1);  % channels, times, rtime  F scores
+P_full = zeros(n_ch, n_time, 1);  %  P scores
+
 
 bootM = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
 bootP = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
+bootM_full = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot, n_regressor
+bootP_full = zeros(n_ch, n_time, n_boot);
+
 W = ones(n_subs, n_boot);
 models = cell(n_ch, 1);
 
@@ -38,6 +44,9 @@ for ch = 1:n_ch  % all channels separately
     X = B; % ones(163, 2);
     model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);
     
+    M_full(ch, :, :) = model.F;
+    P_full(ch, :, :) = model.p;
+    
     for m = 1:n_values
         M(ch, :, :, m) = model.continuous.F(m);
         P(ch, :, :, m) = model.continuous.p(m);
@@ -45,6 +54,9 @@ for ch = 1:n_ch  % all channels separately
     models{ch, 1} = model;
     
     model_boot = limo_glm_boot(Y,X, W,0,0,n_values,'IRLS','Time',boot_table{1, ch});
+    
+    bootM_full(ch, :, :) = model_boot.F;
+    bootP_full(ch, :, :) = model_boot.p;
     
     for j = 1:n_boot
         for m = 1:n_values
@@ -60,10 +72,10 @@ end
 nM = find_adj_matrix(50, 1);
 MCC = 2;
 p = 0.05;
-
+% need the single plus the global one
 % got rid of a stupid error check: whatever! line 53 of limo_cluster_correction
-masks = cell(n_values, 1) ;
-p_vals = cell(n_values, 1);
+masks = cell(n_values + 1, 1);
+p_vals = cell(n_values + 1, 1);
 
 for m = 1:n_values
     [masks{m}, p_vals{m}] = limo_cluster_correction(M(:, :, :, m), ...
@@ -72,5 +84,9 @@ for m = 1:n_values
                                                     bootP(:, :, :, m), nM, MCC, p);
 end
 
+[masks{n_values + 1}, p_vals{n_values + 1}] = limo_cluster_correction(M_full, ...
+                                                    P_full, ...
+                                                    bootM_full, ...
+                                                    bootP_full, nM, MCC, p);
 
 

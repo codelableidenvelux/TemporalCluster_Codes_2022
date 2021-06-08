@@ -1,4 +1,4 @@
-function [mask, p_vals, models] = singleDayLIMO(test_values, jids, varargin)
+function [masks, p_vals, models, A, B] = singleDayLIMO(test_values, jids, varargin)
 
 %% LIMO DAYS
 side = size(jids{1}, 1);
@@ -6,7 +6,6 @@ n_subs = length(jids);
 n_ch = side * side;
 n_time = 1;
 n_values = size(test_values, 2);
-
 
 A = zeros(n_subs, n_time, side, side);
 B = ones(n_subs, n_values + 1);
@@ -26,13 +25,11 @@ n_boot = 1000;
 boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
 boot_table = limo_create_boot_table(boot_data, n_boot);
 
-M = zeros(n_ch, n_time, 1);  % channels, times, rtime  F scores
-P = zeros(n_ch, n_time, 1);  %  P scores
-R2 = zeros(n_ch, n_time, 1);
-Betas = zeros(n_ch, n_time, 2);
+M = zeros(n_ch, n_time, 1, n_values);  % channels, times, rtime  F scores
+P = zeros(n_ch, n_time, 1, n_values);  %  P scores
 
-bootM = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
-bootP = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot
+bootM = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
+bootP = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
 W = ones(n_subs, n_boot);
 models = cell(n_ch, 1);
 
@@ -41,18 +38,19 @@ for ch = 1:n_ch  % all channels separately
     X = B; % ones(163, 2);
     model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);
     
+    for m = 1:n_values
+        M(ch, :, :, m) = model.continuous.F(m);
+        P(ch, :, :, m) = model.continuous.p(m);
+    end
     models{ch, 1} = model;
     
     model_boot = limo_glm_boot(Y,X, W,0,0,n_values,'IRLS','Time',boot_table{1, ch});
     
-    M(ch, :, :) = model.F;
-    P(ch, :, :) = model.p;
-%     R2(ch, :, :) = model.R2_univariate;
-%     Betas(ch, :, :) = model.betas;
-    
     for j = 1:n_boot
-        bootM(ch, :, j) = model_boot.F{j};
-        bootP(ch, :, j) = model_boot.p{j};
+        for m = 1:n_values
+            bootM(ch, :, j, m) = model_boot.continuous.F{j}(m);
+            bootP(ch, :, j, m) = model_boot.continuous.p{j}(m);
+        end
     end
     
 end
@@ -64,5 +62,15 @@ MCC = 2;
 p = 0.05;
 
 % got rid of a stupid error check: whatever! line 53 of limo_cluster_correction
-[mask, p_vals] = limo_cluster_correction(M, P, bootM, bootP, nM, MCC, p);
+masks = cell(n_values, 1) ;
+p_vals = cell(n_values, 1);
+
+for m = 1:n_values
+    [masks{m}, p_vals{m}] = limo_cluster_correction(M(:, :, :, m), ...
+                                                    P(:, :, :, m), ...
+                                                    bootM(:, :, :, m), ...
+                                                    bootP(:, :, :, m), nM, MCC, p);
+end
+
+
 

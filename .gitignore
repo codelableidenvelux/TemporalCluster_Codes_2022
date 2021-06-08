@@ -1,7 +1,8 @@
 *.mat
 *.asv
 
-.ipynb_checkpoints/*
+*.ipynb_checkpoints/*
 *.csv
 *.xlsx
 *.m~
+*.pdf

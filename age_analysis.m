@@ -49,7 +49,6 @@ save('all_age_log_NORM_v2', 'all_age')
 all_single_jids_age_gender = vertcat(single_jids_agestudy_mf, single_jids_otherstudies_mf);
 all_single_jids_age_gender_mf = all_single_jids_age_gender(all_single_jids_age_gender.gender == 1 | all_single_jids_age_gender.gender == 2, :);
 
-
 all_age_gender = cell(1, 4);
 
 for jid_type = 1:4
@@ -57,8 +56,8 @@ for jid_type = 1:4
     with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
     regressor = table2array(with_jid(:, {'age', 'gender'}));
    
-    [res.mask, res.p_vals, res.mdl] = singleDayLIMO(regressor, with_jid.jids(:, jid_type));
-    all_age{1, jid_type} = res;
+    [res.mask, res.p_vals, res.mdl, res.A, res.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type));
+    all_age_gender{1, jid_type} = res;
 end
 
 save('all_age_gender_log_NORM', 'all_age_gender')

@@ -46,6 +46,17 @@ for i = 1:2500
     end
 end
 
+% 
+mask_validity = all_R_res(:, :, 4) > 0;
+
+all_valid_p = all_R_res(mask_validity);
+
+[pID,pN] = limo_FDR(all_valid_p, 0.05);
+
+mask_validity = all_R_res(:, :, 4) < pID;
+
+
+
 %% 
 %presence = presence';
 

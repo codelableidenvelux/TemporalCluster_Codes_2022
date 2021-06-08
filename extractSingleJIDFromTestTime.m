@@ -3,7 +3,7 @@ function outdata = extractSingleJIDFromTestTime(indata, testName, window)
 filtered_data = indata(~cellfun('isempty', indata{:, testName}) & ...
                        ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 7), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps'});
+all_data_proc = cell2table(cell(0, 9), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -19,6 +19,8 @@ for id_ = 1:height(filtered_data)
     test_data = data_{1, testName}{1};
     
     SUB = data_{1, 'Phone'}{1};
+    birthdate = data_{1, 'birthdate'};
+    gender = data_{1, 'gender'};
     
     if ~isfield(test_data, 'session')
         fprintf("\tTest is empty...jump\n")
@@ -38,11 +40,13 @@ for id_ = 1:height(filtered_data)
 
         win_taps = SUB.taps((SUB.taps.start >= start_time + begin) & (SUB.taps.stop <= start_time + ending), :);
         if sum(win_taps.tapsSession) >= 100
-            all_jids{1, 1} = FullJID(win_taps.taps, 'Norm', false);
-            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', false);
-            all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', false);
-            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', false);
+            all_jids{1, 1} = FullJID(win_taps.taps, 'Norm', true);
+            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', true);
+            all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', true);
+            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', true);
             n_taps = sum(win_taps.tapsSession);
+            last_tap = datetime(SUB.taps.stop(end) / 1000, 'ConvertFrom', 'epochtime');
+            age = int32(years(last_tap - birthdate));
         end
 
     
@@ -79,7 +83,8 @@ for id_ = 1:height(filtered_data)
                 LocalCostRT_norm = (SwitchRT-NonSwitchRT)/NonSwitchRT; 
                 LocalCostRT = (SwitchRT-NonSwitchRT); 
                 
-                values = [GlobalCostRT_norm, GlobalCostRT, LocalCostRT_norm, LocalCostRT];
+%                 values = [GlobalCostRT_norm, GlobalCostRT, LocalCostRT_norm, LocalCostRT];
+                values = [GlobalCostRT_norm, LocalCostRT_norm];
                 
                 
             case "corsi"
@@ -98,7 +103,9 @@ for id_ = 1:height(filtered_data)
                         i ...
                         all_jids ...
                         values ...
-                        n_taps}
+                        n_taps ...
+                        age ...
+                        gender}
             ];
 
         

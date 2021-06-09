@@ -14,13 +14,18 @@ for jid_type = 1:4
     with_jid = data_proc_corsi(~cellfun('isempty', data_proc_corsi.jids(:, jid_type)), :);
     
     fprintf("\tTest value + gender\n");
-    regressor_vals = table2array(with_jid(:, {'vals', 'gender'}));
+    % vals == test values
+    % pixel = test + gender 
+    regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
     [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
     
+    % pixel = age + gender [age residual analysis]
     fprintf("\tAge + gender\n");
-    regressor_age = table2array(with_jid(:, {'age', 'gender'}));
+    regressor_age = double(table2array(with_jid(:, {'age', 'gender'})));
     [res.age.masks, res.age.p_vals, res.age.mdl, res.age.A, res.age.B] = singleDayLIMO(regressor_age, with_jid.jids(:, jid_type));
     
+    % test = age + gender [age residual analysis]
+    res.mdl = fitlm(double(regressor_age), regressor_vals(:, 1), 'RobustOpts', 'on');
     all_corsi{1, jid_type} = res;
    
 end

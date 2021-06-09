@@ -1,5 +1,7 @@
 function [masks, p_vals, models, A, B] = singleDayLIMO(test_values, jids, varargin)
 
+
+
 %% LIMO DAYS
 side = size(jids{1}, 1);
 n_subs = length(jids);
@@ -20,43 +22,46 @@ A = log10(reshape(A, n_subs, n_time, n_ch) + 1e-15);
 %% NaN guard
 A = A(~isnan(B(:, 1)), :, :);
 B = B(~isnan(B(:, 1)), :);
+
 %% LIMO
 n_boot = 1000;
 boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
 boot_table = limo_create_boot_table(boot_data, n_boot);
 
-M = zeros(n_ch, n_time, 1, n_values);  % channels, times, rtime  F scores
-P = zeros(n_ch, n_time, 1, n_values);  %  P scores
-M_full = zeros(n_ch, n_time, 1);  % channels, times, rtime  F scores
-P_full = zeros(n_ch, n_time, 1);  %  P scores
+M = zeros(n_ch, n_time, n_values);  % channels, times, n_regressor -> F scores
+P = zeros(n_ch, n_time, n_values);  % channels, times, n_regressor -> P values
+M_full = zeros(n_ch, n_time);  % channels, times -> F scores
+P_full = zeros(n_ch, n_time);  % channels, times -> P values
 
+bootM = zeros(n_ch, n_time, n_boot, n_values); % channels, times, nboot, n_regressor
+bootP = zeros(n_ch, n_time, n_boot, n_values); % channels, times, nboot, n_regressor
+bootM_full = zeros(n_ch, n_time, n_boot); % channels, times, nboot
+bootP_full = zeros(n_ch, n_time, n_boot); % channels, times, nboot
 
-bootM = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
-bootP = zeros(n_ch, n_time, n_boot, n_values); % channels, times, rtime, nboot, n_regressor
-bootM_full = zeros(n_ch, n_time, n_boot); % channels, times, rtime, nboot, n_regressor
-bootP_full = zeros(n_ch, n_time, n_boot);
-
-W = ones(n_subs, n_boot);
+W = ones(n_boot, n_subs);
 models = cell(n_ch, 1);
 
 for ch = 1:n_ch  % all channels separately
-    Y = A(:, :, ch); % zeros(163, 15);
-    X = B; % ones(163, 2);
+    multiWaitbar( 'Channels',    ch/2500, 'Color', [0.8 0.8 0.1]);
+    Y = A(:, :, ch); % (n_subs, n_times);
+    X = B; % (n_subs, n_regressors + 1);
     model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);
     
-    M_full(ch, :, :) = model.F;
-    P_full(ch, :, :) = model.p;
+    M_full(ch, :) = model.F;
+    P_full(ch, :) = model.p;
     
     for m = 1:n_values
-        M(ch, :, :, m) = model.continuous.F(m);
-        P(ch, :, :, m) = model.continuous.p(m);
+        M(ch, :, m) = model.continuous.F(m);
+        P(ch, :, m) = model.continuous.p(m);
     end
     models{ch, 1} = model;
     
-    model_boot = limo_glm_boot(Y,X, W,0,0,n_values,'IRLS','Time',boot_table{1, ch});
+    model_boot = limo_glm_boot(Y, X, W, 0, 0, n_values,'IRLS','Time',boot_table{1, ch});
     
-    bootM_full(ch, :, :) = model_boot.F;
-    bootP_full(ch, :, :) = model_boot.p;
+    for j = 1:n_boot
+        bootM_full(ch, :, j) = model_boot.F{j};
+        bootP_full(ch, :, j) = model_boot.p{j};
+    end
     
     for j = 1:n_boot
         for m = 1:n_values
@@ -78,8 +83,8 @@ masks = cell(n_values + 1, 1);
 p_vals = cell(n_values + 1, 1);
 
 for m = 1:n_values
-    [masks{m}, p_vals{m}] = limo_cluster_correction(M(:, :, :, m), ...
-                                                    P(:, :, :, m), ...
+    [masks{m}, p_vals{m}] = limo_cluster_correction(M(:, :, m), ...
+                                                    P(:, :, m), ...
                                                     bootM(:, :, :, m), ...
                                                     bootP(:, :, :, m), nM, MCC, p);
 end

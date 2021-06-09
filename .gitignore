@@ -3,6 +3,8 @@
 
 .ipynb_checkpoints/*
 Figures/figure1/.ipynb_checkpoints/*
+Figures/figure2/.ipynb_checkpoints/*
+Figures/figure3/.ipynb_checkpoints/*
 *.csv
 *.xlsx
 *.m~

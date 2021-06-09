@@ -22,10 +22,9 @@ end
 
 single_jids_otherstudies = extractSingleJID(T2);
 
-
 %% age study 
 
-taps_tests = fuseTapPsy();
+% taps_tests = fuseTapPsy();
 single_jids_agestudy = extractSingleJID(taps_tests);
 
 %% unite
@@ -46,12 +45,13 @@ save('all_age_log_NORM_v2', 'all_age')
 
 %% including gender
 
-all_single_jids_age_gender = vertcat(single_jids_agestudy_mf, single_jids_otherstudies_mf);
-all_single_jids_age_gender_mf = all_single_jids_age_gender(all_single_jids_age_gender.gender == 1 | all_single_jids_age_gender.gender == 2, :);
+% all_single_jids_age_gender = vertcat(single_jids_agestudy_mf, single_jids_otherstudies_mf);
+all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
 
 all_age_gender = cell(1, 4);
-
+%%
 for jid_type = 1:4
+    multiWaitbar( 'JIDs',    jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);
     with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
     regressor = table2array(with_jid(:, {'age', 'gender'}));
@@ -60,4 +60,4 @@ for jid_type = 1:4
     all_age_gender{1, jid_type} = res;
 end
 
-save('all_age_gender_log_NORM', 'all_age_gender')
+save('all_age_gender_log_NORM_v3', 'all_age_gender')

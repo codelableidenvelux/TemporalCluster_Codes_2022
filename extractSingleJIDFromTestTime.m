@@ -3,7 +3,7 @@ function outdata = extractSingleJIDFromTestTime(indata, testName, window)
 filtered_data = indata(~cellfun('isempty', indata{:, testName}) & ...
                        ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 9), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender'});
+all_data_proc = cell2table(cell(0, 10), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -59,15 +59,17 @@ for id_ = 1:height(filtered_data)
                     continue
                 end
                 values = [median(sRT), median(cRT(:, 1))];
+                n_presentations = [length(sRT), length(cRT(:, 1))];
                 
             case "2back"
-                [Dprime, ~, ~, ~, ~, ~, ~, RThits, ~] = getpsytoolkit2Back(test_data.session{1, i}.vals);
+                [Dprime, pHit, pFA, Nhits, Nmiss, NfA, NCorRej, RThits, RTfalseA] = getpsytoolkit2Back(test_data.session{1, i}.vals);
                 
                 if ~isfield(Dprime, 'dpri') || (length(RThits)) < 2
                     continue
                 end
                 
                 values = [Dprime.dpri, median(RThits)];
+                n_presentations = [Nhits + Nmiss + NfA + NCorRej];
             case "taskswitch"
                 [Same, Mixed] = getpsytoolkitswitch(test_data.session{1, i}.vals);
                 
@@ -85,15 +87,16 @@ for id_ = 1:height(filtered_data)
                 
 %                 values = [GlobalCostRT_norm, GlobalCostRT, LocalCostRT_norm, LocalCostRT];
                 values = [GlobalCostRT_norm, LocalCostRT_norm];
-                
+                n_presentations = [length(Same.color.RT_correct(:,1)) + length(Same.shape.RT_correct(:,1)) ...
+                                   + length(Mixed.RT_correct_switch(:,1)) + length(Mixed.RT_correct_noswitch(:,1))];
                 
             case "corsi"
-                Cspan = getpsytoolkitcorsi(test_data.session{1, i}.vals);
+                [Cspan, ~, Tpresented] = getpsytoolkitcorsi(test_data.session{1, i}.vals);
                 if isempty(Cspan)
                     continue
                 end
                 values = Cspan;
-
+                n_presentations = [TPresented];
         end
         
         all_data_proc = [all_data_proc; 
@@ -105,7 +108,8 @@ for id_ = 1:height(filtered_data)
                         values ...
                         n_taps ...
                         age ...
-                        gender}
+                        gender...
+                        n_presentations}
             ];
 
         

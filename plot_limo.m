@@ -236,8 +236,8 @@ end
 
 h = (5 - 1.5) / 50;
 integral = 0;
-a = 10 .^ squeeze(all_age_norm{1, 1}.A(44, :, :));
-integral =sum(integral + a * h * h);
+a = 10 .^ squeeze(all_age{1, 2}.A(44, :, :));
+integral = sum(integral + a * h * h);
 disp(integral)
 
 %% 

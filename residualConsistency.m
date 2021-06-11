@@ -6,6 +6,7 @@ n_time = 1;
 
 B = ones(n_sub, n_ch, 2);
 B(:, :, 1) = residualsB;
+
 A = ones(n_subs, 1, n_ch);
 A(:, 1, :) = residualsA;
 
@@ -13,6 +14,7 @@ F_vals = zeros(2500, 1);
 p_vals = zeros(2500, 1);
 R_vals = zeros(2500, 1);
 R2_vals = zeros(2500, 1);
+betas = zeros(2500, 2);
 
 n_boot = 1000;
 boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
@@ -30,6 +32,7 @@ for i = 1:n_ch
     F_vals(i) = model.F;
     p_vals(i) = model.p;
     R2_vals(i) = model.R2_univariate;
+    betas(i, :) = model.betas;
     r = corrcoef(X, Y);
     R_vals(i) = r(1, 2);
     

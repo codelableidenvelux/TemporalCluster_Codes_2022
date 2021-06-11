@@ -3,12 +3,13 @@ function [mask, p_vals, F_vals, R_vals, R2_vals] = residualSelfCoherence(residua
 n_sub = size(residuals, 1);
 n_ch = size(residuals, 2);
 
-X = ones(n_sub, 2);  % No bias;
+X = ones(n_sub, 2);
 Y = zeros(n_sub, 1);
 
 F_vals = zeros(2500, 2500);
 p_vals = zeros(2500, 2500);
 R_vals = zeros(2500, 2500);
+betas = zeros(2500, 2500, 2);
 R2_vals = zeros(2500, 2500);
 
 for i = 1:n_ch
@@ -23,13 +24,14 @@ for i = 1:n_ch
         R2_vals(i, j) = model.R2_univariate;
         r = corrcoef(X, Y);
         R_vals(i, j) = r(1, 2);
+        betas(i, j, :) = model.betas;
         
         % for symmetry
         F_vals(j, i) = model.F;
         p_vals(j, i) = model.p;
         R2_vals(j, i) = model.R2_univariate;
         R_vals(j, i) = r(1, 2);
-
+        betas(j, i, :) = model.betas;
     end
 end
 

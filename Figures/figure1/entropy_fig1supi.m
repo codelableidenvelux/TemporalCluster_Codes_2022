@@ -1,5 +1,5 @@
 %% ENTROPY vs AGE
-load('../../all_age_gender_log_v2.mat')
+load('../../all_age_gender_log_NORM_v3.mat')
 %%
 all_adjusted = cell(1, 4);
 for jj = 1:4
@@ -36,6 +36,7 @@ for jj = 1:4
     adjusted.gender = gender;
     adjusted.JIDs = allJIDs;
     adjusted.mdl = mdl;
+    adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
     
     all_adjusted{1, jj} = adjusted;
 end

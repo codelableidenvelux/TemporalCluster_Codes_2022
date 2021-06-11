@@ -10,10 +10,12 @@ n_subs = size(all_age{1, 1}.A, 1);
 all_residuals = zeros(n_subs, 2500);
 
 Y = squeeze(all_age{1, 1}.A);
-X = all_age{1, 1}.B;
+X = all_age{1, 1}.B; % X = [age, gender]
 Betas = squeeze(all_age{1, 1}.Betas(:, :, :));
 
-Y_hat = X * Betas';
+% only project on Age for the residual 
+
+Y_hat = X(:, 1) * Betas(:, 1) + Betas(:, 3);
 residual = Y - Y_hat;
 
 

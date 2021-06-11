@@ -96,7 +96,7 @@ for id_ = 1:height(filtered_data)
                     continue
                 end
                 values = Cspan;
-                n_presentations = [TPresented];
+                n_presentations = [Tpresented];
         end
         
         all_data_proc = [all_data_proc; 

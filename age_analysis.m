@@ -61,3 +61,5 @@ for jid_type = 1:4
 end
 
 save('all_age_gender_log_NORM_v3', 'all_age_gender')
+
+%% 

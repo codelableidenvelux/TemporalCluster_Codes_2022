@@ -6,7 +6,7 @@ filtered_data = indata(~cellfun('isempty', indata{:, 'rtime'}) & ...
     ~cellfun('isempty', indata{:, 'taskswitch'}) & ...
     ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 7), 'VariableNames', {'partId', 'psyId', 'jids', 'vals', 'n_taps', 'age', 'gender'});
+all_data_proc = cell2table(cell(0, 8), 'VariableNames', {'partId', 'psyId', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -66,13 +66,16 @@ for id_ = 1:height(filtered_data)
         continue
     end
     
+    n_pre_RT = [length(sRT), length(cRT(:, 1))];
     
-    [Dprime, ~, ~, ~, ~, ~, ~, RThits, ~] = getpsytoolkit2Back(test_data_2back.session{1, 1}.vals);
+    
+    [Dprime, pHit, pFA, Nhits, Nmiss, NfA, NCorRej, RThits, RTfalseA] = getpsytoolkit2Back(test_data_2back.session{1, 1}.vals);
     
     if ~isfield(Dprime, 'dpri') || (length(RThits)) < 2
         continue
     end
     
+    n_pre_2back = [Nhits + Nmiss + NfA + NCorRej];
     
     [Same, Mixed] = getpsytoolkitswitch(test_data_taskswitch.session{1, 1}.vals);
     
@@ -88,13 +91,18 @@ for id_ = 1:height(filtered_data)
     LocalCostRT_norm = (SwitchRT-NonSwitchRT)/NonSwitchRT;
 %     LocalCostRT = (SwitchRT-NonSwitchRT);
     
+    n_pre_TS = [length(Same.color.RT_correct(:,1)) + length(Same.shape.RT_correct(:,1)) ...
+                                   + length(Mixed.RT_correct_switch(:,1)) + length(Mixed.RT_correct_noswitch(:,1))];
+                
     
-    Cspan = getpsytoolkitcorsi(test_data_corsi.session{1, 1}.vals);
+    [Cspan, ~, Tpresented] = getpsytoolkitcorsi(test_data_corsi.session{1, 1}.vals);
     if isempty(Cspan)
         continue
     end
+    n_pre_CR = [Tpresented];
     
     values = [median(sRT), median(cRT(:, 1)), Dprime.dpri, Cspan, GlobalCostRT_norm, LocalCostRT_norm];
+    n_presentations = [n_pre_RT, n_pre_2back, n_pre_CR, n_pre_TS];
     
     all_data_proc = [all_data_proc;
         {data_.partId{1} ...
@@ -103,7 +111,8 @@ for id_ = 1:height(filtered_data)
         values ...
         n_taps ...
         age ...
-        gender}
+        gender ...
+        n_presentations}
         ];
 
 end

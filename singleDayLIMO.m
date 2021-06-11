@@ -1,7 +1,5 @@
 function [masks, p_vals, models, A, B] = singleDayLIMO(test_values, jids, varargin)
 
-
-
 %% LIMO DAYS
 side = size(jids{1}, 1);
 n_subs = length(jids);
@@ -42,7 +40,7 @@ W = ones(n_boot, n_subs);
 models = cell(n_ch, 1);
 
 for ch = 1:n_ch  % all channels separately
-    multiWaitbar( 'Channels',    ch/2500, 'Color', [0.8 0.8 0.1]);
+    multiWaitbar( 'Channels', ch/2500, 'Color', [0.8 0.8 0.1]);
     Y = A(:, :, ch); % (n_subs, n_times);
     X = B; % (n_subs, n_regressors + 1);
     model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);

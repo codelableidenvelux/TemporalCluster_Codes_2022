@@ -19,21 +19,26 @@ for jid_type = 1:4
     with_jid = with_jid(with_jid.n_presentations > th_corsi, :);
     res.n_presentations = with_jid.n_presentations;
     
-    fprintf("\tTest value + gender\n");
     % pixel = test + gender :: Figure 3
+    fprintf("\tTest value + gender\n");
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
     [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
     
     % Figure 4
     % pixel = age + gender [age residual analysis]
     regressor_age = double(table2array(with_jid(:, {'age', 'gender'})));
-    residual_pixel = multistageResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
-    % (n_sub, n_ch)   
+    residual_pixel = multistageJIDResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
     % test = age + gender [age residual analysis]
-    res.mdl = fitlm(double(regressor_age), regressor_vals(:, 1), 'RobustOpts', 'on');
-    res_pixel = multistageResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
+    residual_test = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1));
+    [res.residual.mask, ...
+        res.residual.p_vals, ...
+        res.residual.F_vals, ...
+        res.residual.R_vals, ...
+        res.residual.R2_vals, ...
+        res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
-    
+    res.age = regressor_age(:, 1);
+    res.vals = regressor_age(:, 1);
     all_corsi{1, jid_type} = res;
 end
 
@@ -59,13 +64,18 @@ for jid_type = 1:4
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
     [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
     
+    % Figure 4
     % pixel = age + gender [age residual analysis]
-    fprintf("\tAge + gender\n");
     regressor_age = double(table2array(with_jid(:, {'age', 'gender'})));
-    [res.age.masks, res.age.p_vals, res.age.mdl, res.age.A, res.age.B] = singleDayLIMO(regressor_age, with_jid.jids(:, jid_type));
-    
+    residual_pixel = multistageJIDResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
     % test = age + gender [age residual analysis]
-    res.mdl = fitlm(double(regressor_age), regressor_vals(:, 1), 'RobustOpts', 'on');
+    residual_test = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1));
+    [res.residual.mask, ...
+        res.residual.p_vals, ...
+        res.residual.F_vals, ...
+        res.residual.R_vals, ...
+        res.residual.R2_vals, ...
+        res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
     all_2back{1, jid_type} = res;
 end
@@ -94,14 +104,19 @@ for idx_val = 1:2
         regressor_vals = regressor_vals(:, [idx_val, 3]);
         [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
 
+        % Figure 4
         % pixel = age + gender [age residual analysis]
-        fprintf("\tAge + gender\n");
         regressor_age = double(table2array(with_jid(:, {'age', 'gender'})));
-        [res.age.masks, res.age.p_vals, res.age.mdl, res.age.A, res.age.B] = singleDayLIMO(regressor_age, with_jid.jids(:, jid_type));
-
+        residual_pixel = multistageJIDResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
         % test = age + gender [age residual analysis]
-        res.mdl = fitlm(double(regressor_age), regressor_vals(:, idx_val), 'RobustOpts', 'on');
-        
+        residual_test = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1));
+        [res.residual.mask, ...
+            res.residual.p_vals, ...
+            res.residual.F_vals, ...
+            res.residual.R_vals, ...
+            res.residual.R2_vals, ...
+            res.residual.betas] = residualConsistency(residual_pixel, residual_test);
+    
         all_r_time{idx_val, jid_type} = res;
     end
 end
@@ -130,14 +145,19 @@ for idx_val = 1:2
         regressor_vals = regressor_vals(:, [idx_val, 3]);
         [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
 
+        % Figure 4
         % pixel = age + gender [age residual analysis]
-        fprintf("\tAge + gender\n");
         regressor_age = double(table2array(with_jid(:, {'age', 'gender'})));
-        [res.age.masks, res.age.p_vals, res.age.mdl, res.age.A, res.age.B] = singleDayLIMO(regressor_age, with_jid.jids(:, jid_type));
-
+        residual_pixel = multistageJIDResiduals(regressor_age(:, 2), regressor_age(:, 1), with_jid.jids(:, jid_type));
         % test = age + gender [age residual analysis]
-        res.mdl = fitlm(double(regressor_age), regressor_vals(:, idx_val), 'RobustOpts', 'on');
-        
+        residual_test = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1));
+        [res.residual.mask, ...
+            res.residual.p_vals, ...
+            res.residual.F_vals, ...
+            res.residual.R_vals, ...
+            res.residual.R2_vals, ...
+            res.residual.betas] = residualConsistency(residual_pixel, residual_test);
+    
         all_switch{idx_val, jid_type} = res;
     end
 end

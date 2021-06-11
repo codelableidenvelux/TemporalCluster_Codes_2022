@@ -1,4 +1,4 @@
-function all_R_a = multistageResiduals(control_value, regression_value, jids, varargin)
+function all_R_a = multistageJIDResiduals(control_value, regression_value, jids, varargin)
 
 %% LIMO DAYS
 side = size(jids{1}, 1);

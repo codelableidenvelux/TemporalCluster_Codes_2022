@@ -1,11 +1,11 @@
-function [mask, p_vals, F_vals, R_vals, R2_vals] = residualConsistency(residualsA, residualsB)
+function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualConsistency(residualsPixel, residualsTest)
 
-n_sub = size(residualsA, 1);
-n_ch = size(residualsA, 2);
+n_sub = size(residualsPixel, 1);
+n_ch = size(residualsPixel, 2);
 n_time = 1;
 
-B = ones(n_sub, n_ch, 2);
-B(:, :, 1) = residualsB;
+B = ones(n_sub, 2);
+B(:, 1) = residualsTest;
 
 A = ones(n_subs, 1, n_ch);
 A(:, 1, :) = residualsA;
@@ -27,7 +27,7 @@ bootP = zeros(n_ch, n_time, n_boot); % channels, times, nboot
 for i = 1:n_ch
     multiWaitbar( 'Full-Channels (i)',    i/2500, 'Color', [0.8 0.8 0.1]);
     Y = A(:, :, i);
-    X = B(:, i);
+    X = B;
     model = limo_glm(Y, X, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
     F_vals(i) = model.F;
     p_vals(i) = model.p;

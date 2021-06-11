@@ -30,11 +30,11 @@ for ch = 1:n_ch
     Y = A(:, :, ch);
 
     model_g = limo_glm(Y, B1, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
-    Y_hat_g = B1 * model_g.betas';
+    Y_hat_g = B1 * model_g.betas;
     R_g = Y - Y_hat_g;
     
     model_a = limo_glm(R_g, B2, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
-    R_hat_g = B2 * model_a.betas';
+    R_hat_g = B2 * model_a.betas;
     
     R_a = R_g - R_hat_g;
     

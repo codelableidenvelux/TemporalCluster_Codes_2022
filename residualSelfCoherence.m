@@ -1,4 +1,4 @@
-function [mask, p_vals, F_vals, R_vals, R2_vals] = residualSelfCoherence(residuals)
+function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualSelfCoherence(residuals)
 
 n_sub = size(residuals, 1);
 n_ch = size(residuals, 2);
@@ -18,11 +18,11 @@ for i = 1:n_ch
         multiWaitbar( 'Full-Channels (j)',    j/2500, 'Color', [0.8 0.8 0.1]);
         Y(:, 1) = residuals(:, i);
         X(:, 1) = residuals(:, j);
-        model = limo_glm(Y, X, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
+        model = limo_glm(Y, X, 0, 0, 1, 'IRLS', 'Time', 0, 1);
         F_vals(i, j) = model.F;
         p_vals(i, j) = model.p;
         R2_vals(i, j) = model.R2_univariate;
-        r = corrcoef(X, Y);
+        r = corrcoef(X(:, 1), Y);
         R_vals(i, j) = r(1, 2);
         betas(i, j, :) = model.betas;
         

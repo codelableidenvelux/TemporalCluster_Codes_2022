@@ -1,14 +1,14 @@
 function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualConsistency(residualsPixel, residualsTest)
 
-n_sub = size(residualsPixel, 1);
+n_subs = size(residualsPixel, 1);
 n_ch = size(residualsPixel, 2);
 n_time = 1;
 
-B = ones(n_sub, 2);
+B = ones(n_subs, 2);
 B(:, 1) = residualsTest;
 
 A = ones(n_subs, 1, n_ch);
-A(:, 1, :) = residualsA;
+A(:, 1, :) = residualsPixel;
 
 F_vals = zeros(2500, 1);
 p_vals = zeros(2500, 1);
@@ -33,14 +33,14 @@ for i = 1:n_ch
     p_vals(i) = model.p;
     R2_vals(i) = model.R2_univariate;
     betas(i, :) = model.betas;
-    r = corrcoef(X, Y);
+    r = corrcoef(X(:, 1), Y);
     R_vals(i) = r(1, 2);
     
-    model_boot = limo_glm_boot(Y, X, W, 0, 0, 1,'IRLS','Time', boot_table{1, ch});
+    model_boot = limo_glm_boot(Y, X, W, 0, 0, 1,'IRLS','Time', boot_table{1, i});
     
     for j = 1:n_boot
-        bootM(ch, :, j) = model_boot.F{j};
-        bootP(ch, :, j) = model_boot.p{j};
+        bootM(i, :, j) = model_boot.F{j};
+        bootP(i, :, j) = model_boot.p{j};
     end
 end
 

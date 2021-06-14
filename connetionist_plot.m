@@ -21,7 +21,7 @@ hold on
 
 for i = 1:2500
     for j = i:2500
-        if abs(all_R_res2(i, j)) > 0.9
+        if mask(i, j) && abs(R_vals(i, j)) > 0.5
         
             x1 = mod(i - 1, 50);
             y1 = int32((i - 1) / 50);
@@ -29,7 +29,7 @@ for i = 1:2500
             y2 = int32((j - 1) / 50);
             
 %             if mod(x1, 2) == 0 && mod(y1, 2) == 0 && mod(x2, 2) == 0 && mod(y2, 2) == 0
-                if color(i, j) > 0
+                if betas(i, j, 1) > 0
                     plot([x1, x2], [y1, y2], 'Color', [0,0,1, 0.1])
                 else
                     plot([x1, x2], [y1, y2], 'Color', [1,0,0, 0.1])
@@ -52,7 +52,7 @@ counter_blue = zeros(50);
 % 
 for i = 0:2499
     for j = i:2499
-        if abs(all_R_res2(i + 1, j + 1)) > 0.9
+        if mask(i, j)
         
             x1 = mod(i, 50) + 1;
             y1 = floor(i / 50) + 1;
@@ -61,7 +61,7 @@ for i = 0:2499
             
             
 %             if mod(x1, 2) == 0 && mod(y1, 2) == 0 && mod(x2, 2) == 0 && mod(y2, 2) == 0
-                if color(i + 1, j + 1) > 0
+                if betas(i + 1, j + 1, 1) > 0
                     counter_red(x1, y1) = counter_red(x1, y1) + 1;
                     counter_red(x2, y2) = counter_red(x2, y2) + 1;
                 else

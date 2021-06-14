@@ -1,13 +1,14 @@
 %% load data
 
-taps_tests = fuseTapPsy();
+% taps_tests = fuseTapPsy();
 % or load it if present 
 % load('taps_test_gender.mat', 'taps_tests')
 
 %% CORSI 
-data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
-data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
+% data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+% data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
+%%
 all_corsi = cell(1, 4);
 th_corsi = 2;
 
@@ -38,7 +39,8 @@ for jid_type = 1:4
         res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
     res.age = regressor_age(:, 1);
-    res.vals = regressor_age(:, 1);
+    res.gender = regressor_age(:, 2);
+    res.vals = regressor_vals(:, 1);
     all_corsi{1, jid_type} = res;
 end
 
@@ -46,9 +48,9 @@ save('all_corsi_log_v3', 'all_corsi')
 
 %% 2back
 
-data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
-data_proc_2back = data_proc_2back(data_proc_2back.gender == 1 | data_proc_2back.gender == 2, :);
-
+% data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+% data_proc_2back = data_proc_2back(data_proc_2back.gender == 1 | data_proc_2back.gender == 2, :);
+%%
 all_2back = cell(1, 4);
 th_2back = 30; % at least 1 block
 
@@ -77,6 +79,10 @@ for jid_type = 1:4
         res.residual.R2_vals, ...
         res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
+    res.age = regressor_age(:, 1);
+    res.gender = regressor_age(:, 2);
+    res.vals = regressor_vals(:, 1);
+    
     all_2back{1, jid_type} = res;
 end
 
@@ -84,9 +90,9 @@ save('all_2back_log_v3', 'all_2back')
 
 %% rtime
 
-data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
-data_proc_rtime = data_proc_rtime(data_proc_rtime.gender == 1 | data_proc_rtime.gender == 2, :);
-
+% data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+% data_proc_rtime = data_proc_rtime(data_proc_rtime.gender == 1 | data_proc_rtime.gender == 2, :);
+%%
 all_r_time = cell(2, 4);
 th_rtime = [12, 24]; % at least 50% of the presentations 
 
@@ -117,6 +123,9 @@ for idx_val = 1:2
             res.residual.R2_vals, ...
             res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
+        res.age = regressor_age(:, 1);
+        res.gender = regressor_age(:, 2);
+        res.vals = regressor_vals(:, 1);
         all_r_time{idx_val, jid_type} = res;
     end
 end
@@ -126,9 +135,9 @@ save('all_rtime_log_v3', 'all_r_time')
 
 %% TASK SWITCH 
 
-data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
-data_proc_switch = data_proc_switch(data_proc_switch.gender == 1 | data_proc_switch.gender == 2, :);
-
+% data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
+% data_proc_switch = data_proc_switch(data_proc_switch.gender == 1 | data_proc_switch.gender == 2, :);
+%%
 all_switch = cell(2, 4);
 th_ts = 12;  % avg of 3 trials per different conditions
 for idx_val = 1:2
@@ -158,6 +167,10 @@ for idx_val = 1:2
             res.residual.R2_vals, ...
             res.residual.betas] = residualConsistency(residual_pixel, residual_test);
     
+        res.age = regressor_age(:, 1);
+        res.gender = regressor_age(:, 2);
+        res.vals = regressor_vals(:, 1);
+        
         all_switch{idx_val, jid_type} = res;
     end
 end
@@ -169,8 +182,8 @@ save('all_switch_log_v3', 'all_switch')
 
 % extract the ones with all the test
 % 
-data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
-
+% data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
+%%
 all_multitest = cell(1, 4);
 
 for jid_type = 1:4
@@ -190,7 +203,7 @@ for jid_type = 1:4
     % pixel = tests + gender 
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
     [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
-
+    
     all_multitest{1, jid_type} = res;
 end
 

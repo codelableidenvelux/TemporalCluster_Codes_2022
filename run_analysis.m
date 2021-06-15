@@ -64,6 +64,7 @@ for jid_type = 1:4
     fprintf("\tTest value + gender\n");
     % pixel = test + gender 
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
+    regressor_vals = regressor_vals(:, [1, 3]);
     [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type));
     
     % Figure 4

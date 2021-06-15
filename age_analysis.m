@@ -63,8 +63,10 @@ end
 save('all_age_gender_log_NORM_v3', 'all_age_gender')
 
 %% residuals
-
-all_R_a = multistageResiduals(double(regressor(:, 2)), double(regressor(:, 1)), with_jid.jids(:, jid_type));
-[mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualSelfCoherence(all_R_a);
+jid_type = 2;
+with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
+regressor = table2array(with_jid(:, {'age', 'gender'}));
+all_R_a_2 = multistageJIDResiduals(double(regressor(:, 2)), double(regressor(:, 1)), with_jid.jids(:, jid_type));
+[mask_2, p_vals_2, F_vals_2, R_vals_2, R2_vals_2, betas_2] = residualSelfCoherence(all_R_a_2);
 
 

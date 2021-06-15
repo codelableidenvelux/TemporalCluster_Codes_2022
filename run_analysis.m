@@ -2,6 +2,7 @@
 
 fitMethod = 'OLS';
 version = 'v4';
+n_boot = 1000;
 
 %% load data
 
@@ -33,7 +34,7 @@ for jid_type = 1:4
      res.val.mdl, ...
      res.val.A, ...
      res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), ...
-                                'FitMethod', fitMethod);
+                                'FitMethod', fitMethod, 'nBoot', n_boot);
     
     % Figure 4
     % pixel = age + gender [age residual analysis]
@@ -46,7 +47,7 @@ for jid_type = 1:4
         res.residual.F_vals, ...
         res.residual.R_vals, ...
         res.residual.R2_vals, ...
-        res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod);
+        res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod, 'nBoot', n_boot);
     
     res.age = regressor_age(:, 1);
     res.gender = regressor_age(:, 2);
@@ -75,7 +76,7 @@ for jid_type = 1:4
     % pixel = test + gender 
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
     regressor_vals = regressor_vals(:, [1, 3]);
-    [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+    [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
     
     % Figure 4
     % pixel = age + gender [age residual analysis]
@@ -88,7 +89,7 @@ for jid_type = 1:4
         res.residual.F_vals, ...
         res.residual.R_vals, ...
         res.residual.R2_vals, ...
-        res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod);
+        res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod, 'nBoot', n_boot);
     
     res.age = regressor_age(:, 1);
     res.gender = regressor_age(:, 2);
@@ -119,7 +120,7 @@ for idx_val = 1:2
         % pixel = test + gender 
         regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
         regressor_vals = regressor_vals(:, [idx_val, 3]);
-        [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+        [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
 
         % Figure 4
         % pixel = age + gender [age residual analysis]
@@ -132,7 +133,7 @@ for idx_val = 1:2
             res.residual.F_vals, ...
             res.residual.R_vals, ...
             res.residual.R2_vals, ...
-            res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod);
+            res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod, 'nBoot', n_boot);
     
         res.age = regressor_age(:, 1);
         res.gender = regressor_age(:, 2);
@@ -163,7 +164,7 @@ for idx_val = 1:2
         % pixel = test + gender 
         regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
         regressor_vals = regressor_vals(:, [idx_val, 3]);
-        [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+        [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
 
         % Figure 4
         % pixel = age + gender [age residual analysis]
@@ -176,7 +177,7 @@ for idx_val = 1:2
             res.residual.F_vals, ...
             res.residual.R_vals, ...
             res.residual.R2_vals, ...
-            res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod);
+            res.residual.betas] = residualConsistency(residual_pixel, residual_test, 'FitMethod', fitMethod, 'nBoot', n_boot);
     
         res.age = regressor_age(:, 1);
         res.gender = regressor_age(:, 2);
@@ -211,7 +212,7 @@ for jid_type = 1:4
     fprintf("\tTest value + gender\n");
     % pixel = tests + gender 
     regressor_vals = double(table2array(with_jid(:, {'vals', 'gender'})));
-    [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+    [res.val.masks, res.val.p_vals, res.val.mdl, res.val.A, res.val.B] = singleDayLIMO(regressor_vals, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
     
     all_multitest{1, jid_type} = res;
 end

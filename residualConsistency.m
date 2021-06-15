@@ -4,9 +4,11 @@ p = inputParser;
 addRequired(p, 'residualsPixel');
 addRequired(p, 'residualsTest');
 addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
+addOptional(p, 'nBoot', 1000);
 
 parse(p, residualsPixel, residualsTest, varargin{:});
 fitMethod = p.Results.RobustOpts;
+n_boot = p.Results.nBoot;
 
 n_subs = size(residualsPixel, 1);
 n_ch = size(residualsPixel, 2);
@@ -24,7 +26,6 @@ R_vals = zeros(2500, 1);
 R2_vals = zeros(2500, 1);
 betas = zeros(2500, 2);
 
-n_boot = 1000;
 boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
 boot_table = limo_create_boot_table(boot_data, n_boot);
 

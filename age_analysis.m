@@ -2,6 +2,7 @@
 
 fitMethod = 'OLS';
 version = 'v4';
+n_boot = 1000;
 
 %% Age analysis 
 
@@ -48,7 +49,7 @@ for jid_type = 1:4
         res.val.p_vals, ...
         res.val.mdl, ...
         res.val.A, ...
-        res.val.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+        res.val.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
     
     all_R_a = multistageJIDResiduals(double(regressor(:, 2)), double(regressor(:, 1)), with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
     [res.residual.mask, ...

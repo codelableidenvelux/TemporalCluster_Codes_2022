@@ -4,9 +4,11 @@ p = inputParser;
 addRequired(p, 'test_values');
 addRequired(p, 'jids');
 addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
+addOptional(p, 'nBoot', 1000);
 
 parse(p, test_values, jids, varargin{:});
 fitMethod = p.Results.RobustOpts;
+n_boot = p.Results.nBoot;
 
 %% LIMO DAYS
 side = size(jids{1}, 1);
@@ -30,7 +32,7 @@ A = A(~isnan(B(:, 1)), :, :);
 B = B(~isnan(B(:, 1)), :);
 
 %% LIMO
-n_boot = 1000;
+
 boot_data = permute(A, [3 2 1]); % zeros(n_ch, n_time, n_subs);  % channels, times, individuals
 boot_table = limo_create_boot_table(boot_data, n_boot);
 

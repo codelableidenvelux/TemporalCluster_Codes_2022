@@ -1,5 +1,14 @@
 function all_R_a = multistageJIDResiduals(control_value, regression_value, jids, varargin)
 
+p = inputParser;
+addRequired(p, 'control_value');
+addRequired(p, 'regression_value');
+addRequired(p, 'jids');
+addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
+
+parse(p, control_value, regression_value, jids, varargin{:});
+fitMethod = p.Results.RobustOpts;
+
 %% LIMO DAYS
 side = size(jids{1}, 1);
 n_subs = length(jids);
@@ -29,11 +38,11 @@ for ch = 1:n_ch
     multiWaitbar( 'Channels',    ch/2500, 'Color', [0.8 0.8 0.1]);
     Y = A(:, :, ch);
 
-    model_g = limo_glm(Y, B1, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
+    model_g = limo_glm(Y, B1, 0, 0, 1, fitMethod, 'Time', 0, n_time);
     Y_hat_g = B1 * model_g.betas;
     R_g = Y - Y_hat_g;
     
-    model_a = limo_glm(R_g, B2, 0, 0, 1, 'IRLS', 'Time', 0, n_time);
+    model_a = limo_glm(R_g, B2, 0, 0, 1, fitMethod, 'Time', 0, n_time);
     R_hat_g = B2 * model_a.betas;
     
     R_a = R_g - R_hat_g;

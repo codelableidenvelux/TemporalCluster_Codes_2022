@@ -9,3 +9,5 @@ Figures/figure3/.ipynb_checkpoints/*
 *.xlsx
 *.m~
 *.pdf
+*.svg
+*.zip

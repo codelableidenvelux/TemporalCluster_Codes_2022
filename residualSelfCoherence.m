@@ -1,4 +1,11 @@
-function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualSelfCoherence(residuals)
+function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualSelfCoherence(residuals, varargin)
+
+p = inputParser;
+addRequired(p, 'residuals');
+addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
+
+parse(p, residuals, varargin{:});
+fitMethod = p.Results.RobustOpts;
 
 n_sub = size(residuals, 1);
 n_ch = size(residuals, 2);
@@ -19,7 +26,7 @@ for i = 1:n_ch
         Y(:, 1) = residuals(:, i);
         X(:, 1) = residuals(:, j);
         
-        model = limo_glm(Y, X, 0, 0, 1, 'IRLS', 'Time', 0, 1);
+        model = limo_glm(Y, X, 0, 0, 1, fitMethod, 'Time', 0, 1);
         F_vals(i, j) = model.F;
         p_vals(i, j) = model.p;
         R2_vals(i, j) = model.R2_univariate;

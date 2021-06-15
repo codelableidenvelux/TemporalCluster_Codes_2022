@@ -1,5 +1,13 @@
 function [masks, p_vals, models, A, B] = singleDayLIMO(test_values, jids, varargin)
 
+p = inputParser;
+addRequired(p, 'test_values');
+addRequired(p, 'jids');
+addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
+
+parse(p, test_values, jids, varargin{:});
+fitMethod = p.Results.RobustOpts;
+
 %% LIMO DAYS
 side = size(jids{1}, 1);
 n_subs = length(jids);
@@ -43,7 +51,7 @@ for ch = 1:n_ch  % all channels separately
     multiWaitbar( 'Channels', ch/2500, 'Color', [0.8 0.8 0.1]);
     Y = A(:, :, ch); % (n_subs, n_times);
     X = B; % (n_subs, n_regressors + 1);
-    model = limo_glm(Y, X, 0, 0, n_values, 'IRLS', 'Time', 0, n_time);
+    model = limo_glm(Y, X, 0, 0, n_values, fitMethod, 'Time', 0, n_time);
     
     M_full(ch, :) = model.F;
     P_full(ch, :) = model.p;
@@ -54,7 +62,7 @@ for ch = 1:n_ch  % all channels separately
     end
     models{ch, 1} = model;
     
-    model_boot = limo_glm_boot(Y, X, W, 0, 0, n_values,'IRLS','Time',boot_table{1, ch});
+    model_boot = limo_glm_boot(Y, X, W, 0, 0, n_values, fitMethod, 'Time', boot_table{1, ch});
     
     for j = 1:n_boot
         bootM_full(ch, :, j) = model_boot.F{j};

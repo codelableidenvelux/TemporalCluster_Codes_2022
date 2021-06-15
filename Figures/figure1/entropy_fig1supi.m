@@ -36,6 +36,7 @@ for jj = 1:4
     adjusted.gender = gender;
     adjusted.JIDs = allJIDs;
     adjusted.mdl = mdl;
+    adjusted.R2 = mdl.Rsquared.Ordinary;
     adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
     
     all_adjusted{1, jj} = adjusted;

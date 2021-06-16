@@ -7,7 +7,7 @@ addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})))
 addOptional(p, 'nBoot', 1000);
 
 parse(p, test_values, jids, varargin{:});
-fitMethod = p.Results.RobustOpts;
+fitMethod = p.Results.FitMethod;
 n_boot = p.Results.nBoot;
 
 %% LIMO DAYS

@@ -5,7 +5,7 @@ addRequired(p, 'residuals');
 addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
 
 parse(p, residuals, varargin{:});
-fitMethod = p.Results.RobustOpts;
+fitMethod = p.Results.FitMethod;
 
 n_sub = size(residuals, 1);
 n_ch = size(residuals, 2);

@@ -1,8 +1,8 @@
 %% Hyperparams
 
 fitMethod = 'OLS';
-version = 'v4';
-n_boot = 1000;
+version = 'trash';
+n_boot = 10;
 
 %% Age analysis 
 
@@ -37,8 +37,10 @@ single_jids_agestudy = extractSingleJID(taps_tests);
 all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
 all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
 
-all_age_gender = cell(1, 4);
+
 %%
+all_age_gender = cell(1, 4);
+
 for jid_type = 1:4
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);

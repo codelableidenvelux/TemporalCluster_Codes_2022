@@ -7,7 +7,7 @@ addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})))
 addOptional(p, 'nBoot', 1000);
 
 parse(p, residualsPixel, residualsTest, varargin{:});
-fitMethod = p.Results.RobustOpts;
+fitMethod = p.Results.FitMethod;
 n_boot = p.Results.nBoot;
 
 n_subs = size(residualsPixel, 1);

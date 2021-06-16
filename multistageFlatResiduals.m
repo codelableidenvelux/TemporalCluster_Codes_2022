@@ -1,4 +1,4 @@
-function R_a = multistageFlatResiduals(control_value, regression_value, output_value, varargin)
+function [R_a, R_g, model_a] = multistageFlatResiduals(control_value, regression_value, output_value, varargin)
 
 p = inputParser;
 addRequired(p, 'control_value');
@@ -7,7 +7,7 @@ addRequired(p, 'output_value');
 addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
 
 parse(p, control_value, regression_value, output_value, varargin{:});
-fitMethod = p.Results.RobustOpts;
+fitMethod = p.Results.FitMethod;
 
 %% LIMO DAYS
 n_subs = length(output_value);

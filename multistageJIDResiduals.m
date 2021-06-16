@@ -7,7 +7,7 @@ addRequired(p, 'jids');
 addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})));
 
 parse(p, control_value, regression_value, jids, varargin{:});
-fitMethod = p.Results.RobustOpts;
+fitMethod = p.Results.FitMethod;
 
 %% LIMO DAYS
 side = size(jids{1}, 1);

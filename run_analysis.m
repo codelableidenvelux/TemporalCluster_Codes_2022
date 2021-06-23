@@ -1,8 +1,8 @@
 %% Hyperparams
 
-fitMethod = 'OLS';
-version = 'trash';
-n_boot = 10;
+fitMethod = 'IRLS';
+version = 'v5_IRLS';
+n_boot = 1000;
 multiWaitbar('CLOSEALL');
 
 %% load data

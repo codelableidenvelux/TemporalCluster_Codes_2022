@@ -1,8 +1,8 @@
 %% Hyperparams
 
 fitMethod = 'OLS';
-version = 'trash';
-n_boot = 10;
+version = 'v4_log';
+n_boot = 1000;
 
 %% Age analysis 
 
@@ -71,3 +71,30 @@ end
 save(['all_age_gender_log_', version], 'all_age_gender')
 
 
+%%
+all_jid_aut = cell(1, 4);
+
+for jid_type = 1:4
+    clear res
+    multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
+    fprintf("Doing AUT with JID %d\n", jid_type);
+    with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
+    regressor = table2array(with_jid(:, {'age', 'gender'}));
+    
+    kk = with_jid.jids(:, jid_type);
+    kk2 = cellfun(@(x) reshape(x, 1, 2500), kk, 'UniformOutput', false);
+    kk3 = cell2mat(kk2);
+    kk4 = log10(kk3 + 1e-15);
+    [res.self.mask, ...
+        res.self.p_vals, ...
+        res.self.F_vals, ...
+        res.self.R_vals, ...
+        res.self.R2_vals, ...
+        res.self.betas] = residualSelfCoherence(kk4, 'FitMethod', fitMethod);
+    
+    res.all_jid = kk4;
+    
+    all_jid_aut{1, jid_type} = res;
+end
+
+save(['all_jid_aut_', version], 'all_jid_aut')

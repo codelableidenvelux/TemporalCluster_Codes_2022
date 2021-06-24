@@ -7,6 +7,7 @@ socialJID = SocialJID(Phone.taps, Phone.apps);
 launcherJID = LauncherJID(Phone.taps, Phone.apps);
 transitionJID = TransitionJID(Phone.taps, Phone.apps);
 
+total_days = int32((Phone.taps.stop(end) - Phone.taps.start(1)) / 1000 / 3600 / 24);
 %% plot them
 subplot(2,2,1)
 imagesc(fullJID)

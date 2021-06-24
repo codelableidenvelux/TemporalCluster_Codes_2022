@@ -1,7 +1,7 @@
 %% Hyperparams
 
-fitMethod = 'OLS';
-version = 'v4_log';
+fitMethod = 'IRLS';
+version = 'v5_IRLS';
 n_boot = 1000;
 
 %% Age analysis 
@@ -42,6 +42,7 @@ all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender =
 all_age_gender = cell(1, 4);
 
 for jid_type = 1:4
+    clear res
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);
     with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
@@ -71,7 +72,7 @@ end
 save(['all_age_gender_log_', version], 'all_age_gender')
 
 
-%%
+
 all_jid_aut = cell(1, 4);
 
 for jid_type = 1:4

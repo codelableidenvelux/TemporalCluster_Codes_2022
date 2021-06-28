@@ -63,3 +63,32 @@ for jid_type = 1:4
 end
 
 save(['all_usage_pixel', version], 'all_usage_pixel')
+
+%% 4 - Pixel = age + gender+ usage
+load('taps_test_gender.mat')
+single_jids_agestudy = extractSingleJID(taps_tests);
+all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+fitMethod = 'IRLS';
+version = 'v5_IRLS';
+n_boot = 1000;
+
+all_age_gender_usage_pixel = cell(1, 4);
+
+for jid_type = 1:4
+    clear res
+    multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
+    fprintf("Doing USAGE with JID %d\n", jid_type);
+    with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
+    regressor = table2array(with_jid(:, {'age', 'gender', 'median(usage)'}));
+   
+    [res.val.mask, ...
+        res.val.p_vals, ...
+        res.val.mdl, ...
+        res.val.A, ...
+        res.val.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
+
+
+    all_age_gender_usage_pixel{1, jid_type} = res;
+end
+
+save(['all_age_gender_usage_pixel', version], 'all_age_gender_usage_pixel')

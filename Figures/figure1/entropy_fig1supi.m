@@ -1,13 +1,13 @@
 %% ENTROPY vs AGE
-load('../../all_age_gender_log_NORM_v3.mat')
+load('../../all_age_gender_log_v5_IRLS.mat')
 %%
 all_adjusted = cell(1, 4);
 for jj = 1:4
-    n_sub = size(all_age_gender{1, jj}.A, 1);
-    allJIDs = squeeze(all_age_gender{1, jj}.A);
+    n_sub = size(all_age_gender{1, jj}.val.A, 1);
+    allJIDs = squeeze(all_age_gender{1, jj}.val.A);
     entropy = zeros(n_sub, 1);
-    age = squeeze(all_age_gender{1, jj}.B(:, 1));
-    gender = squeeze(all_age_gender{1, jj}.B(:, 2));
+    age = squeeze(all_age_gender{1, jj}.val.B(:, 1));
+    gender = squeeze(all_age_gender{1, jj}.val.B(:, 2));
     
     for i = 1:n_sub
         entropy(i) = JID_entropy(10 .^ reshape(allJIDs(i, :), 50, 50));

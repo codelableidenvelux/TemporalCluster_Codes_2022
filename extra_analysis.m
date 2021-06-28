@@ -36,9 +36,9 @@ imagesc(MASS{4})
 set(gca, 'YDir', 'normal')
 
 %% 3 - pixel = median(usage) + c
-% load('taps_test_gender.mat')
-% single_jids_agestudy = extractSingleJID(taps_tests);
-% all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+load('taps_test_gender.mat')
+single_jids_agestudy = extractSingleJID(taps_tests);
+all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
 fitMethod = 'IRLS';
 version = 'v5_IRLS';
 n_boot = 1000;

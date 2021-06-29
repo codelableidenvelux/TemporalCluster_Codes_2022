@@ -65,9 +65,9 @@ end
 save(['all_usage_pixel', version], 'all_usage_pixel')
 
 %% 4 - Pixel = age + gender+ usage
-load('taps_test_gender.mat')
-single_jids_agestudy = extractSingleJID(taps_tests);
-all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+% load('taps_test_gender.mat')
+% single_jids_agestudy = extractSingleJID(taps_tests);
+% all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
 fitMethod = 'IRLS';
 version = 'v5_IRLS';
 n_boot = 1000;
@@ -91,4 +91,4 @@ for jid_type = 1:4
     all_age_gender_usage_pixel{1, jid_type} = res;
 end
 
-save(['all_age_gender_usage_pixel', version], 'all_age_gender_usage_pixel')
+save(['all_age_gender_usage_pixel_', version], 'all_age_gender_usage_pixel')

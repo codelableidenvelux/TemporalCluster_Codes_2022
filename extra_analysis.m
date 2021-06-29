@@ -1,19 +1,40 @@
 % extra 
-%% 1 - median(usage) = age + c
-load('taps_test_gender.mat')
-outdata = extractMedianUsage(taps_tests);
-X = log10(outdata.("median(usage)"));
-Y = outdata.age;
-mdl = fitlm(double(Y), X, 'RobustOpts', 'on');
+%% 1 - median(usage) = age + gender + c
+% load('taps_test_gender.mat')
+% outdata = extractMedianUsage(taps_tests);
+usage = log10(outdata.("median(usage)"));
+age = double(outdata.age);
+gender = double(outdata.gender);
+
+tbl = array2table([age(:), usage(:), gender(:)], 'VariableNames', {'Age', 'Usage', 'Gender'});
+mdl = fitlm(tbl, 'Usage ~ Age + Gender', 'RobustOpts', 'on');
+
 figure(1)
-plot(mdl)
+h = plotAdjustedResponse(mdl, 'Age');
+adjusted_data = zeros(2, size(h(1,1).XData, 2));
+adjusted_fit = zeros(2, size(h(2,1).XData, 2));
+adjusted_data(1, :) = h(1,1).XData;
+adjusted_data(2, :) = h(1,1).YData;
+adjusted_fit(1, :) = h(2,1).XData;
+adjusted_fit(2, :) = h(2,1).YData;
+
+adjusted.adjusted_fit = adjusted_fit;
+adjusted.adjusted_data = adjusted_data;
+adjusted.usage = usage;
+adjusted.age = age;
+adjusted.gender = gender;
+adjusted.mdl = mdl;
+adjusted.R2 = mdl.Rsquared.Ordinary;
+adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
+
+save('suppl_iii', 'adjusted')
 
 %% 2 - mass autocorrelation
-% load('all_jid_aut_v4.mat')
+% load('all_jid_aut_v5_IRLS.mat')
 MASS = cell(1, 4);
 
 for kk = 1:4
-   masked_r2 = all_jid_aut{1, kk}.self.mask * all_jid_aut{1, kk}.self.R2_vals;
+   masked_r2 = all_jid_aut{1, kk}.self.mask .* all_jid_aut{1, kk}.self.R2_vals;
    remodel = cell(2500, 1);
    for i = 1:2500
        remodel{i} = reshape(masked_r2(i, :), 50, 50);
@@ -21,19 +42,21 @@ for kk = 1:4
    MASS{kk} = cell2mat(reshape(remodel, 50, 50));
 end
 
-figure(2)
-subplot(2,2,1)
-imagesc(MASS{1})
-set(gca, 'YDir', 'normal')
-subplot(2,2,2)
-imagesc(MASS{2})
-set(gca, 'YDir', 'normal')
-subplot(2,2,3)
-imagesc(MASS{3})
-set(gca, 'YDir', 'normal')
-subplot(2,2,4)
-imagesc(MASS{4})
-set(gca, 'YDir', 'normal')
+save('mass_extra_2', 'MASS')
+
+% figure(2)
+% subplot(2,2,1)
+% imagesc(MASS{1})
+% set(gca, 'YDir', 'normal')
+% subplot(2,2,2)
+% imagesc(MASS{2})
+% set(gca, 'YDir', 'normal')
+% subplot(2,2,3)
+% imagesc(MASS{3})
+% set(gca, 'YDir', 'normal')
+% subplot(2,2,4)
+% imagesc(MASS{4})
+% set(gca, 'YDir', 'normal')
 
 %% 3 - pixel = median(usage) + c
 % load('taps_test_gender.mat')

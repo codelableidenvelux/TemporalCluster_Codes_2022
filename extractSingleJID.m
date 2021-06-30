@@ -10,7 +10,7 @@ norm = p.Results.Norm;
 
 filtered_data = indata(~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 6), 'VariableNames', {'partId', 'jids', 'age', 'n_taps', 'gender', 'median(usage)'});
+all_data_proc = cell2table(cell(0, 7), 'VariableNames', {'partId', 'jids', 'age', 'n_taps', 'gender', 'median(usage)', 'n_days'});
 
 K = height(filtered_data);
 
@@ -36,6 +36,7 @@ for id_ = 1:K
         age = int32(years(last_tap - birthdate));
     end
     
+    
     % median usage
     start_time = win_taps.start(1);
     n_days = double(int32((win_taps.stop(end) - win_taps.start(1)) / 1000 / 3600 / 24));
@@ -52,7 +53,8 @@ for id_ = 1:K
         [age] ...
         n_taps ...
         gender ...
-        med_usage}];
+        med_usage ...
+        n_days}];
 
 end
 

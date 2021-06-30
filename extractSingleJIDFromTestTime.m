@@ -3,7 +3,7 @@ function outdata = extractSingleJIDFromTestTime(indata, testName, window)
 filtered_data = indata(~cellfun('isempty', indata{:, testName}) & ...
                        ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 10), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations'});
+all_data_proc = cell2table(cell(0, 11), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations', 'n_days'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -37,6 +37,7 @@ for id_ = 1:height(filtered_data)
         start_time = posixtime(test_data.session{1, i}.TIME_start) * 1000;
         all_jids = cell(1, 4);
         n_taps = 0;
+        n_days = 0;
 
         win_taps = SUB.taps((SUB.taps.start >= start_time + begin) & (SUB.taps.stop <= start_time + ending), :);
         if sum(win_taps.tapsSession) >= 100
@@ -47,7 +48,10 @@ for id_ = 1:height(filtered_data)
             n_taps = sum(win_taps.tapsSession);
             last_tap = datetime(SUB.taps.stop(end) / 1000, 'ConvertFrom', 'epochtime');
             age = int32(years(last_tap - birthdate));
+            n_days = double(int32((win_taps.stop(end) - win_taps.start(1)) / 1000 / 3600 / 24));
         end
+        
+        
 
     
         switch testName
@@ -109,7 +113,8 @@ for id_ = 1:height(filtered_data)
                         n_taps ...
                         age ...
                         gender...
-                        n_presentations}
+                        n_presentations ...
+                        n_days}
             ];
 
         

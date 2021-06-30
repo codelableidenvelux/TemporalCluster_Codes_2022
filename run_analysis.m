@@ -12,7 +12,7 @@ multiWaitbar('CLOSEALL');
 % load('taps_test_gender.mat', 'taps_tests')
 
 %% CORSI 
-% data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
 % data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
 %%

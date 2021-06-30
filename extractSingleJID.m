@@ -1,5 +1,7 @@
 function outdata = extractSingleJID(indata, varargin)
 
+% Enea Ceolini, Leiden University, 26/05/2021
+
 p = inputParser;
 addRequired(p,'indata');
 addOptional(p,'Norm', true);

@@ -1,6 +1,14 @@
-function data = fuseTapPsy()
+function data = fuseTapPsy(varargin)
 
 % Enea Ceolini, Leiden University, 26/05/2021
+
+p = inputParser;
+addOptional(p, 'Refresh', false);
+
+parse(p, varargin{:});
+
+refresh = p.Results.Refresh;
+
 
 [psyid_r_time, Data_r_time] = getpsytoolkitdata('/media/Storage/AgestudyNL/', 'R_TIME');
 [psyid_2_back, Data_2_back] = getpsytoolkitdata('/media/Storage/AgestudyNL/', '2_Back');
@@ -14,11 +22,12 @@ all_gender = demoinfo.gender;
 
 all_Data_ids = cell(length(all_part_id), 10);
 
-% in case refresh is needed
-% for i = 1:length(all_part_id)
-%     fprintf("Doing %d/%d (%s)\n", i, length(all_part_id), all_part_id{i});
-%     SUB = getTapDataParsed(all_part_id{i}, 'Phone', 'refresh', 1);
-% end
+if refresh
+    for i = 1:length(all_part_id)
+        fprintf("Doing %d/%d (%s)\n", i, length(all_part_id), all_part_id{i});
+        SUB = getTapDataParsed(all_part_id{i}, 'Phone', 'refresh', 1);
+    end
+end
 
 
 for i = 1:length(all_part_id)

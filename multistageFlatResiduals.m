@@ -1,5 +1,5 @@
 function [R_a, R_g, model_a] = multistageFlatResiduals(control_value, regression_value, output_value, varargin)
-
+% Enea Ceolini, Leiden University, 26/05/2021
 p = inputParser;
 addRequired(p, 'control_value');
 addRequired(p, 'regression_value');

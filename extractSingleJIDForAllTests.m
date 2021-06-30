@@ -6,7 +6,7 @@ filtered_data = indata(~cellfun('isempty', indata{:, 'rtime'}) & ...
     ~cellfun('isempty', indata{:, 'taskswitch'}) & ...
     ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 8), 'VariableNames', {'partId', 'psyId', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations'});
+all_data_proc = cell2table(cell(0, 9), 'VariableNames', {'partId', 'psyId', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations', 'n_days'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -39,6 +39,7 @@ for id_ = 1:height(filtered_data)
     
     all_jids = cell(1, 4);
     n_taps = 0;
+    n_days = 0;
     
     start_time_rtime = posixtime(test_data_rtime.session{1, 1}.TIME_start) * 1000;
     start_time_2back = posixtime(test_data_2back.session{1, 1}.TIME_start) * 1000;
@@ -57,6 +58,7 @@ for id_ = 1:height(filtered_data)
         n_taps = sum(win_taps.tapsSession);
         last_tap = datetime(SUB.taps.stop(end) / 1000, 'ConvertFrom', 'epochtime');
         age = int32(years(last_tap - birthdate));
+        n_days = double(int32((win_taps.stop(end) - win_taps.start(1)) / 1000 / 3600 / 24));
     end
     
     
@@ -112,7 +114,8 @@ for id_ = 1:height(filtered_data)
         n_taps ...
         age ...
         gender ...
-        n_presentations}
+        n_presentations ...
+        n_days}
         ];
 
 end

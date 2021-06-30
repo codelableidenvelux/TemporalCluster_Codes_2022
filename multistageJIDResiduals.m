@@ -1,5 +1,5 @@
 function all_R_a = multistageJIDResiduals(control_value, regression_value, jids, varargin)
-
+% Enea Ceolini, Leiden University, 26/05/2021
 p = inputParser;
 addRequired(p, 'control_value');
 addRequired(p, 'regression_value');

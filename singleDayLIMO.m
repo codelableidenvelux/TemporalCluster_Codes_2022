@@ -1,5 +1,5 @@
 function [masks, p_vals, models, A, B] = singleDayLIMO(test_values, jids, varargin)
-
+% Enea Ceolini, Leiden University, 26/05/2021
 p = inputParser;
 addRequired(p, 'test_values');
 addRequired(p, 'jids');

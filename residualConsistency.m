@@ -1,5 +1,5 @@
 function [mask, p_vals, F_vals, R_vals, R2_vals, betas] = residualConsistency(residualsPixel, residualsTest, varargin)
-
+% Enea Ceolini, Leiden University, 26/05/2021
 p = inputParser;
 addRequired(p, 'residualsPixel');
 addRequired(p, 'residualsTest');

@@ -1,3 +1,4 @@
+% Enea Ceolini, Leiden University, 26/05/2021
 %% Hyperparams
 
 fitMethod = 'IRLS';
@@ -17,7 +18,7 @@ T2 = T(~isnat(T.birthdate), :);
 T2.Phone = cell(height(T2), 1);
 
 for i = 1:height(T2)
-    SUB = getTapDataParsed(T2.partId{i}, 'refresh', 0);
+    SUB = getTapDataParsed(T2.partId{i}, 'refresh', 1);
     if ~isempty(SUB)
        T2.Phone{i} = SUB; 
     end
@@ -29,7 +30,7 @@ single_jids_otherstudies = extractSingleJID(T2);
 
 %% age study 
 
-% taps_tests = fuseTapPsy();
+taps_tests = fuseTapPsy('Resfresh', true);
 single_jids_agestudy = extractSingleJID(taps_tests);
 
 
@@ -37,6 +38,9 @@ single_jids_agestudy = extractSingleJID(taps_tests);
 all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
 all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
 
+%% save info
+only_info = all_single_jids_age_gender_mf(:, {'partId', 'age', 'n_taps', 'gender'});
+writetable(only_info, 'only_info_figure_1.csv')
 
 %%
 all_age_gender = cell(1, 4);
@@ -72,6 +76,7 @@ end
 save(['all_age_gender_log_', version], 'all_age_gender')
 
 
+%% AUTOCORR
 
 all_jid_aut = cell(1, 4);
 
@@ -98,4 +103,4 @@ for jid_type = 1:4
     all_jid_aut{1, jid_type} = res;
 end
 
-save(['all_jid_aut_', version], 'all_jid_aut')
+save(['all_jid_aut_log_', version], 'all_jid_aut')

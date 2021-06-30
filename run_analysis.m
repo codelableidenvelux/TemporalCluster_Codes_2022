@@ -1,25 +1,26 @@
+% Enea Ceolini, Leiden University, 26/05/2021
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v5_IRLS';
+version = 'v6_IRLS';
 n_boot = 1000;
 multiWaitbar('CLOSEALL');
 
-%% load data
+%% Load data
 
-% taps_tests = fuseTapPsy();
+% taps_tests = fuseTapPsy('Refresh', true);
 % or load it if present 
 % load('taps_test_gender.mat', 'taps_tests')
 
 %% CORSI 
 data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
-% data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
+data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
-%%
 all_corsi = cell(1, 4);
 th_corsi = 2;
 
 for jid_type = 1:4
+    clear res
     fprintf("Doing CORSI with JID %d\n", jid_type);
     
     with_jid = data_proc_corsi(~cellfun('isempty', data_proc_corsi.jids(:, jid_type)), :);
@@ -62,13 +63,14 @@ save(['all_corsi_log_', version], 'all_corsi')
 
 %% 2back
 
-% data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
-% data_proc_2back = data_proc_2back(data_proc_2back.gender == 1 | data_proc_2back.gender == 2, :);
-%%
+data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+data_proc_2back = data_proc_2back(data_proc_2back.gender == 1 | data_proc_2back.gender == 2, :);
+
 all_2back = cell(1, 4);
 th_2back = 30; % at least 1 block
 
 for jid_type = 1:4
+    clear res
     fprintf("Doing 2-BACK with JID %d\n", jid_type);
     with_jid = data_proc_2back(~cellfun('isempty', data_proc_2back.jids(:, jid_type)), :);
     
@@ -107,14 +109,15 @@ save(['all_2back_log_', version], 'all_2back')
 
 %% rtime
 
-% data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
-% data_proc_rtime = data_proc_rtime(data_proc_rtime.gender == 1 | data_proc_rtime.gender == 2, :);
-%%
+data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+data_proc_rtime = data_proc_rtime(data_proc_rtime.gender == 1 | data_proc_rtime.gender == 2, :);
+
 all_r_time = cell(2, 4);
 th_rtime = [12, 24]; % at least 50% of the presentations 
 
 for idx_val = 1:2
     for jid_type = 1:4
+        clear res
         fprintf("Doing RTIME (%d) with JID %d\n", idx_val, jid_type);
         with_jid = data_proc_rtime(~cellfun('isempty', data_proc_rtime.jids(:, jid_type)), :);
         
@@ -154,13 +157,14 @@ save(['all_rtime_log_', version], 'all_r_time')
 
 %% TASK SWITCH 
 
-% data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
-% data_proc_switch = data_proc_switch(data_proc_switch.gender == 1 | data_proc_switch.gender == 2, :);
-%%
+data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
+data_proc_switch = data_proc_switch(data_proc_switch.gender == 1 | data_proc_switch.gender == 2, :);
+
 all_switch = cell(2, 4);
 th_ts = 12;  % avg of 3 trials per different conditions
 for idx_val = 1:2
     for jid_type = 1:4
+        clear res
         fprintf("Doing TASK SWITCH (%d) with JID %d\n", idx_val, jid_type);
         with_jid = data_proc_switch(~cellfun('isempty', data_proc_switch.jids(:, jid_type)), :);
         
@@ -201,11 +205,12 @@ save(['all_switch_log_', version], 'all_switch')
 
 %% MUTLIVARIATE MODEL
 
-% data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
-%%
+data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
+
 all_multitest = cell(1, 4);
 
 for jid_type = 1:4
+    clear res
     fprintf("Doing MULTI with JID %d\n", jid_type);
     with_jid = data_proc_all_tests(~cellfun('isempty', data_proc_all_tests.jids(:, jid_type)), :);
     

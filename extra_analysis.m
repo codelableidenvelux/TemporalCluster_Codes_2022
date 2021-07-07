@@ -1,8 +1,8 @@
 % Enea Ceolini, Leiden University, 26/05/2021
 % extra 
 %% 1 - median(usage) = age + gender + c
-% load('taps_test_gender.mat')
-% outdata = extractMedianUsage(taps_tests);
+% load('taps_tests_v6.mat')
+outdata = extractMedianUsage(taps_tests);
 usage = log10(outdata.("median(usage)"));
 age = double(outdata.age);
 gender = double(outdata.gender);
@@ -28,7 +28,8 @@ adjusted.mdl = mdl;
 adjusted.R2 = mdl.Rsquared.Ordinary;
 adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
 
-save('Figures/figure1/suppl_iii', 'adjusted')
+save('./Figures/figure1/suppl_iii', 'adjusted')
+
 
 %% 2 - mass autocorrelation
 % load('all_jid_aut_v5_IRLS.mat')
@@ -92,8 +93,9 @@ save(['all_usage_pixel', version], 'all_usage_pixel')
 % load('taps_test_gender.mat')
 % single_jids_agestudy = extractSingleJID(taps_tests);
 % all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+
 fitMethod = 'IRLS';
-version = 'v5_IRLS';
+version = 'v6_IRLS';
 n_boot = 1000;
 
 all_age_gender_usage_pixel = cell(1, 4);

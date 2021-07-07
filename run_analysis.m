@@ -2,18 +2,34 @@
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v6_IRLS';
+version = 'v7_IRLS';
 n_boot = 1000;
 multiWaitbar('CLOSEALL');
 
-%% Load data
+% Load data
 
 % taps_tests = fuseTapPsy('Refresh', true);
 % or load it if present 
-% load('taps_test_gender.mat', 'taps_tests')
+load('taps_tests_v6.mat', 'taps_tests')
+
+%%
+data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
+data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
+
+%%
+th_days = 7;
+data_proc_corsi = data_proc_corsi(data_proc_corsi.n_days > th_days, :);
+data_proc_2back = data_proc_2back(data_proc_2back.n_days > th_days, :);
+data_proc_rtime = data_proc_rtime(data_proc_rtime.n_days > th_days, :);
+data_proc_switch = data_proc_switch(data_proc_switch.n_days > th_days, :);
+data_proc_all_tests = data_proc_all_tests(data_proc_all_tests.n_days > th_days, :);
+
 
 %% CORSI 
-data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
+
 data_proc_corsi = data_proc_corsi(data_proc_corsi.gender == 1 | data_proc_corsi.gender == 2, :);
 
 all_corsi = cell(1, 4);
@@ -45,7 +61,7 @@ for jid_type = 1:4
     % test = age + gender [age residual analysis]
     [res.residual.residual_test, ...
         res.residual.gender_corrected_residuals, ...
-        res.residual.age_gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
+        res.residual.age_mdl, res.residual.gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
     [res.residual.mask, ...
         res.residual.p_vals, ...
         res.residual.F_vals, ...
@@ -61,9 +77,7 @@ end
 
 save(['all_corsi_log_', version], 'all_corsi')
 
-%% 2back
-
-data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
+% 2back
 data_proc_2back = data_proc_2back(data_proc_2back.gender == 1 | data_proc_2back.gender == 2, :);
 
 all_2back = cell(1, 4);
@@ -90,7 +104,7 @@ for jid_type = 1:4
     % test = age + gender [age residual analysis]
     [res.residual.residual_test, ...
         res.residual.gender_corrected_residuals, ...
-        res.residual.age_gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
+        res.residual.age_mdl, res.residual.gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
     [res.residual.mask, ...
         res.residual.p_vals, ...
         res.residual.F_vals, ...
@@ -107,9 +121,7 @@ end
 
 save(['all_2back_log_', version], 'all_2back')
 
-%% rtime
-
-data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);
+% rtime
 data_proc_rtime = data_proc_rtime(data_proc_rtime.gender == 1 | data_proc_rtime.gender == 2, :);
 
 all_r_time = cell(2, 4);
@@ -137,7 +149,7 @@ for idx_val = 1:2
     % test = age + gender [age residual analysis]
     [res.residual.residual_test, ...
         res.residual.gender_corrected_residuals, ...
-        res.residual.age_gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
+        res.residual.age_mdl, res.residual.gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
     [res.residual.mask, ...
         res.residual.p_vals, ...
         res.residual.F_vals, ...
@@ -155,9 +167,8 @@ end
 save(['all_rtime_log_', version], 'all_r_time')
         
 
-%% TASK SWITCH 
+% TASK SWITCH 
 
-data_proc_switch = extractSingleJIDFromTestTime(taps_tests, "taskswitch", 10);
 data_proc_switch = data_proc_switch(data_proc_switch.gender == 1 | data_proc_switch.gender == 2, :);
 
 all_switch = cell(2, 4);
@@ -184,7 +195,7 @@ for idx_val = 1:2
     % test = age + gender [age residual analysis]
     [res.residual.residual_test, ...
         res.residual.gender_corrected_residuals, ...
-        res.residual.age_gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
+        res.residual.age_mdl, res.residual.gender_mdl] = multistageFlatResiduals(regressor_age(:, 2), regressor_age(:, 1), regressor_vals(:, 1), 'FitMethod', fitMethod);
     [res.residual.mask, ...
         res.residual.p_vals, ...
         res.residual.F_vals, ...
@@ -203,9 +214,8 @@ end
 save(['all_switch_log_', version], 'all_switch')
 
 
-%% MUTLIVARIATE MODEL
+% MUTLIVARIATE MODEL
 
-data_proc_all_tests = extractSingleJIDForAllTests(taps_tests, 10);
 
 all_multitest = cell(1, 4);
 

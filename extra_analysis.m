@@ -28,7 +28,7 @@ adjusted.mdl = mdl;
 adjusted.R2 = mdl.Rsquared.Ordinary;
 adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
 
-save('suppl_iii', 'adjusted')
+save('Figures/figure1/suppl_iii', 'adjusted')
 
 %% 2 - mass autocorrelation
 % load('all_jid_aut_v5_IRLS.mat')

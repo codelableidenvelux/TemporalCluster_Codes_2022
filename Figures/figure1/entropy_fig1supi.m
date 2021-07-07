@@ -1,5 +1,5 @@
 %% ENTROPY vs AGE
-load('../../all_age_gender_log_v5_IRLS.mat')
+load('../../all_age_gender_log_v6_IRLS.mat')
 %%
 all_adjusted = cell(1, 4);
 for jj = 1:4

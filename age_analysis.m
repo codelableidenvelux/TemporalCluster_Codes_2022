@@ -2,10 +2,10 @@
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v5_IRLS';
+version = 'v6_IRLS';
 n_boot = 1000;
 
-%% Age analysis 
+% Age analysis 
 
 opts = detectImportOptions('MASS_Subject_list.xlsx','NumHeaderLines', 3);
 T = readtable('MASS_Subject_list.xlsx',opts);
@@ -13,33 +13,33 @@ T = readtable('MASS_Subject_list.xlsx',opts);
 T = T(:, {'Var4', 'Var5', 'Var9'});
 T.Properties.VariableNames = {'birthdate', 'gender', 'partId'};
 
-%%
+%
 T2 = T(~isnat(T.birthdate), :);
 T2.Phone = cell(height(T2), 1);
 
 for i = 1:height(T2)
-    SUB = getTapDataParsed(T2.partId{i}, 'refresh', 1);
+    SUB = getTapDataParsed(T2.partId{i}, 'refresh', 0);
     if ~isempty(SUB)
        T2.Phone{i} = SUB; 
     end
 end
 
-%% JIDS
+% age study
+taps_tests = fuseTapPsy('Refresh', true);
+save('taps_tests_v6', 'taps_tests', '-v7.3')
 
-single_jids_otherstudies = extractSingleJID(T2);
+%% JIDS 
 
-%% age study 
-
-taps_tests = fuseTapPsy('Resfresh', true);
 single_jids_agestudy = extractSingleJID(taps_tests);
-
-
+single_jids_otherstudies = extractSingleJID(T2);
+single_jids_otherstudies.gender = single_jids_otherstudies.gender + 1;
 %% including gender
 all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
 all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
 
+all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf(all_single_jids_age_gender_mf.n_days > 7, :);
 %% save info
-only_info = all_single_jids_age_gender_mf(:, {'partId', 'age', 'n_taps', 'gender'});
+only_info = all_single_jids_age_gender_mf_th(:, {'partId', 'age', 'n_taps', 'gender'});
 writetable(only_info, 'only_info_figure_1.csv')
 
 %%
@@ -49,7 +49,7 @@ for jid_type = 1:4
     clear res
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);
-    with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
+    with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
     regressor = table2array(with_jid(:, {'age', 'gender'}));
    
     [res.val.mask, ...
@@ -76,7 +76,7 @@ end
 save(['all_age_gender_log_', version], 'all_age_gender')
 
 
-%% AUTOCORR
+% AUTOCORR
 
 all_jid_aut = cell(1, 4);
 
@@ -84,7 +84,7 @@ for jid_type = 1:4
     clear res
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AUT with JID %d\n", jid_type);
-    with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
+    with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
     regressor = table2array(with_jid(:, {'age', 'gender'}));
     
     kk = with_jid.jids(:, jid_type);

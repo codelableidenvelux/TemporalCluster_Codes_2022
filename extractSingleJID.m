@@ -17,6 +17,9 @@ all_data_proc = cell2table(cell(0, 7), 'VariableNames', {'partId', 'jids', 'age'
 K = height(filtered_data);
 
 for id_ = 1:K
+    if id_ == 130
+        continue
+    end
     data_ = filtered_data(id_, :);
     fprintf("Doing %d/%d (%s)\n", id_, K, data_.partId{1});
     

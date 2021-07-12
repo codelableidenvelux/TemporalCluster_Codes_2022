@@ -2,7 +2,7 @@
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v7_IRLS';
+version = 'v8_IRLS';
 n_boot = 1000;
 multiWaitbar('CLOSEALL');
 
@@ -10,9 +10,9 @@ multiWaitbar('CLOSEALL');
 
 % taps_tests = fuseTapPsy('Refresh', true);
 % or load it if present 
-load('taps_tests_v6.mat', 'taps_tests')
+% load('taps_tests_v6.mat', 'taps_tests')
 
-%%
+%% 
 data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);
 data_proc_2back = extractSingleJIDFromTestTime(taps_tests, "2back", 10);
 data_proc_rtime = extractSingleJIDFromTestTime(taps_tests, "rtime", 10);

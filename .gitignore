@@ -1,5 +1,6 @@
 *.mat
 *.asv
+**/*.DS_Store
 
 .ipynb_checkpoints/*
 Figures/v1/figure1/.ipynb_checkpoints/*

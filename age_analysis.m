@@ -2,11 +2,12 @@
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v6_IRLS';
+version = 'v9_IRLS';
 n_boot = 1000;
 
 % Age analysis 
 
+%% other studies
 opts = detectImportOptions('MASS_Subject_list.xlsx','NumHeaderLines', 3);
 T = readtable('MASS_Subject_list.xlsx',opts);
 
@@ -24,14 +25,28 @@ for i = 1:height(T2)
     end
 end
 
-% age study
-taps_tests = fuseTapPsy('Refresh', true);
-save('taps_tests_v6', 'taps_tests', '-v7.3')
+%% age study
+% taps_tests = fuseTapPsy('Refresh', false);
+% save('taps_tests_v9', 'taps_tests', '-v7.3')
+
+%% special care for curfew devices
+load('Curfew_list.mat')
+n_curfew_subs = length(Curfew_list);
+
+T3 = T2;
+
+for i = 1:n_curfew_subs
+   idx = find(ismember(T3.partId, Curfew_list(i).ID) == 1);
+   tsc = Curfew_list(i).utc;
+   SUB_ = T3.Phone{idx};
+   SUB_.taps = SUB_.taps(SUB_.taps.start < tsc * 1000, :);
+   T3.Phone{idx} = SUB_;
+end
 
 %% JIDS 
 
 single_jids_agestudy = extractSingleJID(taps_tests);
-single_jids_otherstudies = extractSingleJID(T2);
+single_jids_otherstudies = extractSingleJID(T3);
 single_jids_otherstudies.gender = single_jids_otherstudies.gender + 1;
 %% including gender
 all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
@@ -39,7 +54,9 @@ all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender =
 
 all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf(all_single_jids_age_gender_mf.n_days > 7, :);
 %% save info
-only_info = all_single_jids_age_gender_mf_th(:, {'partId', 'age', 'n_taps', 'gender'});
+with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, 1)), :);
+only_info = with_jid(:, {'partId', 'age', 'n_taps', 'gender'});
+
 writetable(only_info, 'only_info_figure_1.csv')
 
 %%
@@ -50,7 +67,7 @@ for jid_type = 1:4
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);
     with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
-    regressor = table2array(with_jid(:, {'age', 'gender'}));
+    regressor = double(table2array(with_jid(:, {'age', 'gender'})));
    
     [res.val.mask, ...
         res.val.p_vals, ...
@@ -85,7 +102,7 @@ for jid_type = 1:4
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AUT with JID %d\n", jid_type);
     with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
-    regressor = table2array(with_jid(:, {'age', 'gender'}));
+    regressor = double(table2array(with_jid(:, {'age', 'gender'})));
     
     kk = with_jid.jids(:, jid_type);
     kk2 = cellfun(@(x) reshape(x, 1, 2500), kk, 'UniformOutput', false);

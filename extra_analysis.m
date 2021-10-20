@@ -28,7 +28,12 @@ adjusted.mdl = mdl;
 adjusted.R2 = mdl.Rsquared.Ordinary;
 adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
 
-save('./Figures/figure1/suppl_iii', 'adjusted')
+adjusted.stats = table2array(mdl.Coefficients);
+
+summary = anova(mdl,'summary');
+adjusted.full = summary{'Model', :};
+
+save('./Figures/v2/figure3/suppl_iii', 'adjusted')
 
 
 %% 2 - mass autocorrelation
@@ -90,9 +95,20 @@ end
 save(['all_usage_pixel', version], 'all_usage_pixel')
 
 %% 4 - Pixel = age + gender+ usage
-% load('taps_test_gender.mat')
-% single_jids_agestudy = extractSingleJID(taps_tests);
+load('taps_test_v6.mat')
+single_jids_agestudy = extractSingleJID(taps_tests);
+single_jids_otherstudies = extractSingleJID(T2);
+
+single_jids_otherstudies.gender = single_jids_otherstudies.gender + 1;
+all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
+all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
+
+all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf(all_single_jids_age_gender_mf.n_days > 7, :);
+
 % all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+
+all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf_th(all_single_jids_age_gender_mf_th.("median(usage)")>0, :);
+
 
 fitMethod = 'IRLS';
 version = 'v6_IRLS';
@@ -100,13 +116,16 @@ n_boot = 1000;
 
 all_age_gender_usage_pixel = cell(1, 4);
 
+%%
 for jid_type = 1:4
     clear res
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing USAGE with JID %d\n", jid_type);
-    with_jid = all_single_jids_age_gender_mf(~cellfun('isempty', all_single_jids_age_gender_mf.jids(:, jid_type)), :);
-    regressor = table2array(with_jid(:, {'age', 'gender', 'median(usage)'}));
-   
+    with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
+%     with_jid = jids_finger_2(~cellfun('isempty', jids_finger_2.jids(:, jid_type)), :);
+    regressor = double(table2array(with_jid(:, {'age', 'gender', 'median(usage)'})));
+    regressor(:, 3) = log10(regressor(:, 3) + 1e-15);
+    
     [res.val.mask, ...
         res.val.p_vals, ...
         res.val.mdl, ...
@@ -117,4 +136,57 @@ for jid_type = 1:4
     all_age_gender_usage_pixel{1, jid_type} = res;
 end
 
-save(['all_age_gender_usage_pixel_', version], 'all_age_gender_usage_pixel')
+save(['all_age_gender_logusage_pixel_', version], 'all_age_gender_usage_pixel')
+
+%% 5 - Pixel = age + gender + usage + finger1 + finger2 + years_usage
+
+subset_finger = taps_tests_finger(:, {'partId', 'finger'});
+subset_finger = subset_finger(~cellfun('isempty', subset_finger.finger), :);
+
+taps_tests.finger = cell(height(taps_tests), 1);
+
+for i = 1:height(subset_finger)
+    idx = find(ismember(taps_tests.partId, subset_finger.partId(i)) == 1);
+    taps_tests.finger(idx) = subset_finger.finger(i);
+end
+
+taps_tests_1 = taps_tests(~cellfun('isempty', taps_tests.finger), :);
+taps_tests_1 = taps_tests_1(~cellfun('isempty', taps_tests_1.Phone), :);
+taps_tests_1 = taps_tests_1(taps_tests_1.gender == 1 | taps_tests_1.gender == 2, :);
+
+jids_finger = extractSingleJIDFromTestTime(taps_tests_1, "finger", 1000);
+
+% load('taps_test_gender.mat')
+% single_jids_agestudy = extractSingleJID(taps_tests);
+% all_single_jids_age_gender_mf = single_jids_agestudy(single_jids_agestudy.gender == 1 | single_jids_agestudy.gender == 2, :);
+%%
+fitMethod = 'IRLS';
+version = 'v6_IRLS';
+n_boot = 1000;
+
+all_age_gender_usage_finger_pixel = cell(1, 4);
+jids_finger_2 = jids_finger;
+jids_finger_2.age = double(jids_finger_2.age);
+jids_finger_2.gender = double(jids_finger_2.gender);
+
+for jid_type = 1:4
+    clear res
+    multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
+    fprintf("Doing USAGE with JID %d\n", jid_type);
+    with_jid = jids_finger_2(~cellfun('isempty', jids_finger_2.jids(:, jid_type)), :);
+    regressor = double(table2array(with_jid(:, {'age', 'gender', 'usage', 'vals'})));
+    regressor(:, 3) = log10(regressor(:, 3) + 1e-15);
+    [res.val.mask, ...
+        res.val.p_vals, ...
+        res.val.mdl, ...
+        res.val.A, ...
+        res.val.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
+
+
+    all_age_gender_usage_finger_pixel{1, jid_type} = res;
+end
+
+save(['all_age_gender_usage_finger_pixel_', version], 'all_age_gender_usage_finger_pixel')
+
+
+%%

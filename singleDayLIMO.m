@@ -27,9 +27,11 @@ end
 
 A = log10(reshape(A, n_subs, n_time, n_ch) + 1e-15);
 
+% A = reshape(A, n_subs, n_time, n_ch);
 %% NaN guard
 A = A(~isnan(B(:, 1)), :, :);
-B = B(~isnan(B(:, 1)), :);
+% B = B(~isnan(B(:, 1)), :);
+B(isnan(B)) = 0;
 
 %% LIMO
 

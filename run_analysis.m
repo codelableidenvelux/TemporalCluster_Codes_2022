@@ -10,7 +10,7 @@ multiWaitbar('CLOSEALL');
 
 % taps_tests = fuseTapPsy('Refresh', true);
 % or load it if present 
-% load('taps_tests_v6.mat', 'taps_tests')
+load('taps_tests_v6.mat', 'taps_tests')
 
 %% 
 data_proc_corsi = extractSingleJIDFromTestTime(taps_tests, "corsi", 10);

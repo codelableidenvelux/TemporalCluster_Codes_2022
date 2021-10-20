@@ -38,6 +38,9 @@ for jj = 1:4
     adjusted.mdl = mdl;
     adjusted.R2 = mdl.Rsquared.Ordinary;
     adjusted.pval = mdl.Coefficients{'Age', 'pValue'};
+    adjusted.stats = table2array(mdl.Coefficients);
+    summary = anova(mdl,'summary');
+    adjusted.full = summary{'Model', :};
     
     all_adjusted{1, jj} = adjusted;
 end

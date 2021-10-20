@@ -1,9 +1,9 @@
-function outdata = extractSingleJIDFromTestTime(indata, testName, window)
+function outdata = extractISIJIDFromTestTime(indata, testName, window)
 
 filtered_data = indata(~cellfun('isempty', indata{:, testName}) & ...
                        ~cellfun('isempty', indata{:, 'Phone'}), :);
 
-all_data_proc = cell2table(cell(0, 13), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations', 'n_days', 'usage', 'entropy'});
+all_data_proc = cell2table(cell(0, 11), 'VariableNames', {'partId', 'psyId', 'testName', 'session', 'jids', 'vals', 'n_taps', 'age', 'gender', 'n_presentations', 'n_days'});
 
 totalDays = window * 2 + 1;
 half_way = window + 1;
@@ -19,8 +19,8 @@ for id_ = 1:height(filtered_data)
     test_data = data_{1, testName}{1};
     
     SUB = data_{1, 'Phone'}{1};
-    birthdate = data_{1, 'birthdate'};
-    gender = data_{1, 'gender'};
+    birthdate = data_{1, 'birthdate'}{1};
+    gender = data_{1, 'gender'}{1};
     
     if ~isfield(test_data, 'session')
         fprintf("\tTest is empty...jump\n")
@@ -35,45 +35,22 @@ for id_ = 1:height(filtered_data)
             if length(response) ~= 36
                 continue
             end
-        elseif strcmp(testName, 'finger')
-            years_usage = double(test_data.session{1,i}.surveydata(13));
-            pic_rank = double(test_data.session{1,i}.surveydata(30:37));
-            
-            if isempty(years_usage) || sum(pic_rank) ~= 36
-                continue
-            end
-
+        elseif i ~= 1
+            continue
         end
         fprintf("\t\tSession %d/%d\n", i, length(test_data.session));
         start_time = posixtime(test_data.session{1, i}.TIME_start) * 1000;
         all_jids = cell(1, 4);
         n_taps = 0;
         n_days = 0;
-        age = 0;
-        med_usage = 0;
-        entropy = 0;
 
         win_taps = SUB.taps((SUB.taps.start >= start_time + begin) & (SUB.taps.stop <= start_time + ending), :);
-        if sum(win_taps.tapsSession) >= 100
-            all_jids{1, 1} = FullJID(win_taps.taps, 'Norm', true);
-            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', true);
-            all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', true);
-            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', true);
+        if height(win_taps) >= 5
+            all_jids{1, 1} = InterSessionJID(win_taps, 'Norm', true);
             n_taps = sum(win_taps.tapsSession);
             last_tap = datetime(SUB.taps.stop(end) / 1000, 'ConvertFrom', 'epochtime');
             age = int32(years(last_tap - birthdate));
             n_days = double(int32((win_taps.stop(end) - win_taps.start(1)) / 1000 / 3600 / 24));
-        
-            % median usage
-            start_time = win_taps.start(1);
-            count_days = zeros(n_days, 1); 
-            for m = 1:n_days
-                count_days(m) = sum(win_taps((win_taps.start >= (m - 1) * 1000.0 * 3600 * 24 + start_time) & (win_taps.start < m * 1000.0 * 3600 * 24 + start_time), :).tapsSession);
-            end
-            med_usage = median(count_days(count_days > 0));
-            
-            entropy = JID_entropy(all_jids{1, 1});
-            
         end
         
         
@@ -132,11 +109,6 @@ for id_ = 1:height(filtered_data)
                 [PCS, MCS] = score_sf36_rand36(response);
                 values = [PCS, MCS];
                 n_presentations = [1];
-                
-            case "finger"
-                [fingerdness, yearsused] = getpsytoolkitfingerphone(test_data.session{1, i}.surveydata);
-                values = [fingerdness(1), fingerdness(2), yearsused];
-                n_presentations = [1];
 
         end
         
@@ -151,9 +123,7 @@ for id_ = 1:height(filtered_data)
                         age ...
                         gender...
                         n_presentations ...
-                        n_days ...
-                        med_usage ... 
-                        entropy}
+                        n_days}
             ];
 
         

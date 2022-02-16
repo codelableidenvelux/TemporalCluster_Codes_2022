@@ -56,9 +56,9 @@ for id_ = 1:height(filtered_data)
         win_taps = SUB.taps((SUB.taps.start >= start_time + begin) & (SUB.taps.stop <= start_time + ending), :);
         if sum(win_taps.tapsSession) >= 100
             all_jids{1, 1} = FullJID(win_taps.taps, 'Norm', true);
-            all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', true);
-            all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', true);
-            all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', true);
+%             all_jids{1, 2} = LauncherJID(win_taps, SUB.apps, 'Norm', true);
+%             all_jids{1, 3} = SocialJID(win_taps, SUB.apps, 'Norm', true);
+%             all_jids{1, 4} = TransitionJID(win_taps, SUB.apps, 'Norm', true);
             n_taps = sum(win_taps.tapsSession);
             last_tap = datetime(SUB.taps.stop(end) / 1000, 'ConvertFrom', 'epochtime');
             age = int32(years(last_tap - birthdate));
@@ -74,6 +74,10 @@ for id_ = 1:height(filtered_data)
             
             entropy = JID_entropy(all_jids{1, 1});
             
+        end
+        
+        if med_usage == 0
+            continue
         end
         
         
@@ -155,8 +159,7 @@ for id_ = 1:height(filtered_data)
                         med_usage ... 
                         entropy}
             ];
-
-        
+           break;  % once I have a valid session I move forward.
     end
     
 end

@@ -1,5 +1,5 @@
 %% ENTROPY vs AGE
-load('../../../all_age_gender_log_v6_IRLS.mat')
+load('../../../all_age_gender_log_v13_IRLS.mat')
 %%
 all_adjusted = cell(1, 4);
 for jj = 1:4
@@ -44,4 +44,4 @@ for jj = 1:4
     
     all_adjusted{1, jj} = adjusted;
 end
-save('adjusted_entropy_response_v6_IRLS', 'all_adjusted');
+save('adjusted_entropy_response_v13_IRLS', 'all_adjusted');

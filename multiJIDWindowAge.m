@@ -1,5 +1,6 @@
 function outdata = multiJIDWindow(indata, varargin)
 
+
 % Enea Ceolini, Leiden University, 17/09/2021
 
 p = inputParser;

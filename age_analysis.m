@@ -2,7 +2,7 @@
 %% Hyperparams
 
 fitMethod = 'IRLS';
-version = 'v9_IRLS';
+version = 'v13_IRLS';
 n_boot = 1000;
 
 % Age analysis 
@@ -26,8 +26,8 @@ for i = 1:height(T2)
 end
 
 %% age study
-% taps_tests = fuseTapPsy('Refresh', false);
-% save('taps_tests_v9', 'taps_tests', '-v7.3')
+taps_tests = fuseTapPsy('Refresh', false);
+% save('taps_tests_v12', 'taps_tests', '-v7.3')
 
 %% special care for curfew devices
 load('Curfew_list.mat')
@@ -55,11 +55,12 @@ all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender =
 all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf(all_single_jids_age_gender_mf.n_days > 7, :);
 %% save info
 with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, 1)), :);
-only_info = with_jid(:, {'partId', 'age', 'n_taps', 'gender'});
+only_info = with_jid(:, {'partId', 'age', 'n_taps', 'gender', 'n_days'});
 
-writetable(only_info, 'only_info_figure_1.csv')
+writetable(only_info, 'only_info_figure_1_v12.csv')
 
 %%
+
 all_age_gender = cell(1, 4);
 
 for jid_type = 1:4
@@ -107,7 +108,7 @@ for jid_type = 1:4
     kk = with_jid.jids(:, jid_type);
     kk2 = cellfun(@(x) reshape(x, 1, 2500), kk, 'UniformOutput', false);
     kk3 = cell2mat(kk2);
-    kk4 = log10(kk3 + 1e-15);
+    kk4 = log10(kk3 + 3.1463e-12);
     [res.self.mask, ...
         res.self.p_vals, ...
         res.self.F_vals, ...

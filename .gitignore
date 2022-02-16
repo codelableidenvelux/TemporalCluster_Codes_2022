@@ -1,7 +1,7 @@
 *.mat
 *.asv
 **/*.DS_Store
-
+/codegen
 .ipynb_checkpoints/*
 Figures/v1/figure1/.ipynb_checkpoints/*
 Figures/v1/figure2/.ipynb_checkpoints/*

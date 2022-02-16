@@ -30,7 +30,7 @@ all_Data_ids = cell(length(all_part_id), 11);
 if refresh
     for i = 1:length(all_part_id)
         fprintf("Doing %d/%d (%s)\n", i, length(all_part_id), all_part_id{i});
-        SUB = getTapDataParsed(all_part_id{i}, 'Phone', 'refresh', 1);
+        getTapDataParsed(all_part_id{i}, 'Phone', 'refresh', 1);
     end
 end
 

@@ -25,7 +25,7 @@ for i = 1:n_subs
     A(i, 1, :, :) = jids{i};
 end
 
-A = log10(reshape(A, n_subs, n_time, n_ch) + 1e-15);
+A = log10(reshape(A, n_subs, n_time, n_ch) + 3.1463e-12);
 
 %% NaN guard
 % A = A(~isnan(B(:, 1)), :, :);

@@ -1,65 +1,20 @@
 % Enea Ceolini, Leiden University, 26/05/2021
-%% Hyperparams
+%% Hyperparameters
 
-fitMethod = 'IRLS';
-version = 'v13_IRLS';
-n_boot = 1000;
+fitMethod = 'IRLS';  % Robust options, could be OLS.
+version = 'v13_IRLS'; % Just to keep track of analysis version in case of updates.
+n_boot = 1000;  % Number of repetitions for bootsrap.  
 
-% Age analysis 
+%% Load data
+load('all_single_jids_age_gender_mf_th_v13.mat')
 
-%% other studies
-opts = detectImportOptions('MASS_Subject_list.xlsx','NumHeaderLines', 3);
-T = readtable('MASS_Subject_list.xlsx',opts);
-
-T = T(:, {'Var4', 'Var5', 'Var9'});
-T.Properties.VariableNames = {'birthdate', 'gender', 'partId'};
-
-%
-T2 = T(~isnat(T.birthdate), :);
-T2.Phone = cell(height(T2), 1);
-
-for i = 1:height(T2)
-    SUB = getTapDataParsed(T2.partId{i}, 'refresh', 0);
-    if ~isempty(SUB)
-       T2.Phone{i} = SUB; 
-    end
-end
-
-%% age study
-taps_tests = fuseTapPsy('Refresh', false);
-% save('taps_tests_v12', 'taps_tests', '-v7.3')
-
-%% special care for curfew devices
-load('Curfew_list.mat')
-n_curfew_subs = length(Curfew_list);
-
-T3 = T2;
-
-for i = 1:n_curfew_subs
-   idx = find(ismember(T3.partId, Curfew_list(i).ID) == 1);
-   tsc = Curfew_list(i).utc;
-   SUB_ = T3.Phone{idx};
-   SUB_.taps = SUB_.taps(SUB_.taps.start < tsc * 1000, :);
-   T3.Phone{idx} = SUB_;
-end
-
-%% JIDS 
-
-single_jids_agestudy = extractSingleJID(taps_tests);
-single_jids_otherstudies = extractSingleJID(T3);
-single_jids_otherstudies.gender = single_jids_otherstudies.gender + 1;
-%% including gender
-all_single_jids_age = vertcat(single_jids_agestudy, single_jids_otherstudies);
-all_single_jids_age_gender_mf = all_single_jids_age(all_single_jids_age.gender == 1 | all_single_jids_age.gender == 2, :);
-
-all_single_jids_age_gender_mf_th = all_single_jids_age_gender_mf(all_single_jids_age_gender_mf.n_days > 7, :);
-%% save info
+%% Save extra info 
 with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, 1)), :);
 only_info = with_jid(:, {'partId', 'age', 'n_taps', 'gender', 'n_days'});
 
-writetable(only_info, 'only_info_figure_1_v12.csv')
+writetable(only_info, sprintf('only_info_figure_1_%s.csv', version))
 
-%%
+%% Age Analysis
 
 all_age_gender = cell(1, 4);
 
@@ -67,16 +22,21 @@ for jid_type = 1:4
     clear res
     multiWaitbar( 'JIDs', jid_type/4, 'Color', [0.8 0.0 0.1]);
     fprintf("Doing AGE with JID %d\n", jid_type);
+    % make sure we only use subjects that have a valid JID
     with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
     regressor = double(table2array(with_jid(:, {'age', 'gender'})));
-   
+    
+    % LIMO regression between all pixels of a single JID and age/gender regressors
     [res.val.mask, ...
         res.val.p_vals, ...
         res.val.mdl, ...
         res.val.A, ...
         res.val.B] = singleDayLIMO(regressor, with_jid.jids(:, jid_type), 'FitMethod', fitMethod, 'nBoot', n_boot);
     
+    % multistage analysis to extract gender-corrected age regressions
     all_R_a = multistageJIDResiduals(double(regressor(:, 2)), double(regressor(:, 1)), with_jid.jids(:, jid_type), 'FitMethod', fitMethod);
+    
+    % Coherence of gender-corrected age regressions between couple of pixels 
     [res.residual.mask, ...
         res.residual.p_vals, ...
         res.residual.F_vals, ...
@@ -85,6 +45,7 @@ for jid_type = 1:4
         res.residual.betas] = residualSelfCoherence(all_R_a, 'FitMethod', fitMethod);
     res.residual.all_R = all_R_a;
     
+    % saving results
     res.age = regressor(:, 1);
     res.gender = regressor(:, 2);
 
@@ -94,7 +55,7 @@ end
 save(['all_age_gender_log_', version], 'all_age_gender')
 
 
-% AUTOCORR
+%% Autocorrelation analysis (of each couple of pixels)
 
 all_jid_aut = cell(1, 4);
 
@@ -105,18 +66,22 @@ for jid_type = 1:4
     with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, jid_type)), :);
     regressor = double(table2array(with_jid(:, {'age', 'gender'})));
     
-    kk = with_jid.jids(:, jid_type);
-    kk2 = cellfun(@(x) reshape(x, 1, 2500), kk, 'UniformOutput', false);
-    kk3 = cell2mat(kk2);
-    kk4 = log10(kk3 + 3.1463e-12);
+    jj = with_jid.jids(:, jid_type);
+    jj2 = cellfun(@(x) reshape(x, 1, 2500), jj, 'UniformOutput', false);
+    jj3 = cell2mat(jj2);
+    jj4 = log10(jj3 + 3.1463e-12);
+
+    % We use the same residual self-coherence function as above cause it
+    % implements the same idea of pixel-to-pixel regression
+
     [res.self.mask, ...
         res.self.p_vals, ...
         res.self.F_vals, ...
         res.self.R_vals, ...
         res.self.R2_vals, ...
-        res.self.betas] = residualSelfCoherence(kk4, 'FitMethod', fitMethod);
+        res.self.betas] = residualSelfCoherence(jj4, 'FitMethod', fitMethod);
     
-    res.all_jid = kk4;
+    res.all_jid = jj4;
     
     all_jid_aut{1, jid_type} = res;
 end

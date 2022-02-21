@@ -9,7 +9,7 @@ addOptional(p, 'FitMethod', 'OLS', @(x) any(validatestring(x, {'OLS', 'IRLS'})))
 parse(p, control_value, regression_value, jids, varargin{:});
 fitMethod = p.Results.FitMethod;
 
-%% LIMO DAYS
+%% JID preparation
 side = size(jids{1}, 1);
 n_subs = length(jids);
 n_ch = side * side;
@@ -26,10 +26,6 @@ for i = 1:n_subs
 end
 
 A = log10(reshape(A, n_subs, n_time, n_ch) + 3.1463e-12);
-
-%% NaN guard
-% A = A(~isnan(B(:, 1)), :, :);
-% B = B(~isnan(B(:, 1)), :);
 
 %% LIMO
 all_R_a = zeros(n_subs, n_ch);

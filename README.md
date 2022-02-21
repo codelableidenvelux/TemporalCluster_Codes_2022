@@ -23,7 +23,7 @@ Gender:
 
 ### List of datasets
 
-- [all_single_jids_age_gender_mf_th_v14](all_single_jids_age_gender_mf_th_v14.mat) : Table containing the data needed to run the global age analysis (see [age_analysis.m](age_analysis.m)) and some supplementary analysis (see (extra_analyysis.m)[extra_analyysis.m]), the table contains the following information for each of the 598 subjects:
+- [all_single_jids_age_gender_mf_th_v14](all_single_jids_age_gender_mf_th_v14.mat) : Table containing the data needed to run the global age analysis (see [age_analysis.m](age_analysis.m)) and some supplementary analysis (see [extra_analysis.m](extra_analysis.m)), the table contains the following information for each of the 598 subjects:
   - partId: unique identifier from QuantActions.
   - jids: 4 50-by-50 matrices corresponding to the JIDs (Full, Launcher, Social, Transition) accumulated over the full recording period.
   - age
@@ -41,7 +41,7 @@ Gender:
   - screen_size: size of the smartphone screen in inches
 
 
-- Datasets for the cognitive tests results (see (psytest_analysis.m)[psytest_analysis.m]) and some supplementary analysis (see (extra_analysis.m)[extra_analysis.m]). Here we have separated datasets for each cognitive test since the corresponding JIDs are obtained by accumutaing a window of +/- 10 days around the test time.
+- Datasets for the cognitive tests results (see [psytest_analysis.m](psytest_analysis.m)) and some supplementary analysis (see [extra_analysis.m](extra_analysis.m)). Here we have separated datasets for each cognitive test since the corresponding JIDs are obtained by accumutaing a window of +/- 10 days around the test time.
   - [data_proc_2back](data_proc_2back.mat)
   - [data_proc_corsi](data_proc_corsi.mat)
   - [data_proc_rtime](data_proc_rtime.mat)

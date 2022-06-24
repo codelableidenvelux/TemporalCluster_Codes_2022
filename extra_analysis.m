@@ -2,7 +2,7 @@
 % extra analys for supplementary figures
 
 %% Load data
-load('all_single_jids_age_gender_mf_th_v14.mat')
+load('./data/all_single_jids_age_gender_mf_th_v14.mat')
 
 %% 1 - median(usage) = age + gender + c
 
@@ -92,7 +92,7 @@ save(['all_age_gender_logusage_pixel_', version], 'all_age_gender_usage_pixel')
 
 %% 4 - Pixel = age + gender + usage + finger1 + finger2 + years_usage
 
-load('jids_finger_v14.mat')
+load('./data/jids_finger_v14.mat')
 
 fitMethod = 'IRLS';
 version = 'v13_IRLS';

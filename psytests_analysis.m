@@ -7,10 +7,10 @@ n_boot = 1000;
 multiWaitbar('CLOSEALL');
 
 %% Load data
-load('data_proc_corsi.mat')
-load('data_proc_rtime.mat')
-load('data_proc_switch.mat')
-load('data_proc_2back.mat')
+load('./data/data_proc_corsi.mat')
+load('./data/data_proc_rtime.mat')
+load('./data/data_proc_switch.mat')
+load('./data/data_proc_2back.mat')
 
 %% CORSI
 

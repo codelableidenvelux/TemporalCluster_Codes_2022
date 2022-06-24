@@ -6,7 +6,7 @@ version = 'v13_IRLS'; % Just to keep track of analysis version in case of update
 n_boot = 1000;  % Number of repetitions for bootsrap.  
 
 %% Load data
-load('all_single_jids_age_gender_mf_th_v13.mat')
+load('./data/all_single_jids_age_gender_mf_th_v14.mat')
 
 %% Save extra info 
 with_jid = all_single_jids_age_gender_mf_th(~cellfun('isempty', all_single_jids_age_gender_mf_th.jids(:, 1)), :);
